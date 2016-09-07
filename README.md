@@ -9,10 +9,10 @@
   - [X] set_label
   - [X] delete_label
   - [X] load / dump / clear / get_config
-- [ ] [Regression](http://jubat.us/ja/api_regression.html)
-  - [ ] train
-  - [ ] estimate
-  - [ ] load / dump / clear / get_config
+- [X] [Regression](http://jubat.us/ja/api_regression.html)
+  - [X] train
+  - [X] estimate
+  - [X] load / dump / clear / get_config
 - [ ] [Recommender](http://jubat.us/ja/api_recommender.html)
   - [ ] clear_row
   - [ ] update_row

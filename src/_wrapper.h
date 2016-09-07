@@ -5,6 +5,7 @@
 #include <jubatus/core/fv_converter/datum.hpp>
 #include <jubatus/core/framework/stream_writer.hpp>
 #include <jubatus/core/driver/classifier.hpp>
+#include <jubatus/core/driver/regression.hpp>
 
 using jubatus::util::lang::shared_ptr;
 using jubatus::core::fv_converter::datum;
@@ -80,4 +81,12 @@ public:
     std::vector<std::pair<std::string, uint64_t> > get_labels();
     bool set_label(const std::string& new_label);
     bool delete_label(const std::string& target_label);
+};
+
+class _Regression : public _Base<jubatus::core::driver::regression> {
+public:
+    _Regression(const std::string& config);
+    ~_Regression() {}
+    void train(float score, const datum& d);
+    float estimate(const datum& d);
 };

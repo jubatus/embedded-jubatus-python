@@ -4,12 +4,15 @@
 #include <jubatus/core/fv_converter/converter_config.hpp>
 #include <jubatus/core/storage/storage_factory.hpp>
 #include <jubatus/core/classifier/classifier_factory.hpp>
+#include <jubatus/core/regression/regression_factory.hpp>
 
 #include "_wrapper.h"
 
 namespace jsonconfig = jubatus::core::common::jsonconfig;
 using jubatus::core::fv_converter::converter_config;
 using jubatus::core::fv_converter::make_fv_converter;
+using jubatus::core::storage::storage_base;
+using jubatus::core::storage::storage_factory;
 
 void parse_config(const std::string& config, std::string& method,
                   jsonconfig::config& params, converter_config& fvconv_config) {
@@ -29,7 +32,6 @@ void parse_config(const std::string& config, std::string& method,
 _Classifier::_Classifier(const std::string& config) {
     using jubatus::core::classifier::classifier_factory;
     using jubatus::core::driver::classifier;
-    using jubatus::core::storage::storage_factory;
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
@@ -64,4 +66,26 @@ bool _Classifier::set_label(const std::string& new_label) {
 
 bool _Classifier::delete_label(const std::string& target_label) {
     return handle->delete_label(target_label);
+}
+
+_Regression::_Regression(const std::string& config) {
+    using jubatus::core::driver::regression;
+    using jubatus::core::regression::regression_factory;
+    std::string method;
+    jsonconfig::config params;
+    converter_config fvconv_config;
+    parse_config(config, method, params, fvconv_config);
+    shared_ptr<storage_base> model = storage_factory::create_storage("local");
+    handle.reset(new regression(model,
+        regression_factory::create_regression(method, params, model),
+        make_fv_converter(fvconv_config, NULL)));
+    this->config.assign(config);
+}
+
+void _Regression::train(float score, const datum& d) {
+    handle->train(std::pair<float, datum>(score, d));
+}
+
+float _Regression::estimate(const datum& d) {
+    return handle->estimate(d);
 }
