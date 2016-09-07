@@ -35,6 +35,7 @@ class _JubatusBase(object):
 include 'types.pyx'
 include 'anomaly.pyx'
 include 'classifier.pyx'
+include 'clustering.pyx'
 include 'nearest_neighbor.pyx'
 include 'recommender.pyx'
 include 'regression.pyx'
@@ -43,6 +44,9 @@ class Anomaly(_JubatusBase, _AnomalyWrapper):
     pass
 
 class Classifier(_JubatusBase, _ClassifierWrapper):
+    pass
+
+class Clustering(_JubatusBase, _ClusteringWrapper):
     pass
 
 class NearestNeighbor(_JubatusBase, _NearestNeighborWrapper):

@@ -6,6 +6,7 @@
 #include <jubatus/core/storage/column_table.hpp>
 #include <jubatus/core/anomaly/anomaly_factory.hpp>
 #include <jubatus/core/classifier/classifier_factory.hpp>
+#include <jubatus/core/clustering/clustering.hpp>
 #include <jubatus/core/nearest_neighbor/nearest_neighbor_factory.hpp>
 #include <jubatus/core/recommender/recommender_factory.hpp>
 #include <jubatus/core/regression/regression_factory.hpp>
@@ -230,4 +231,44 @@ float _Anomaly::calc_score(const datum& d) const {
 
 std::vector<std::string> _Anomaly::get_all_rows() const {
     return handle->get_all_rows();
+}
+
+_Clustering::_Clustering(const std::string& config) {
+    using jubatus::core::clustering::clustering;
+    using jubatus::core::clustering::clustering_config;
+    std::string method;
+    jsonconfig::config params;
+    converter_config fvconv_config;
+    parse_config(config, method, params, fvconv_config);
+    std::string my_id;
+    clustering_config cluster_conf = jsonconfig::config_cast_check<clustering_config>(params);
+    handle.reset(new jubatus::core::driver::clustering(
+        shared_ptr<clustering>(
+            new clustering(my_id, method, cluster_conf)),
+        make_fv_converter(fvconv_config, NULL)));
+    this->config.assign(config);
+}
+
+void _Clustering::push(const std::vector<datum>& points) {
+    handle->push(points);
+}
+
+size_t _Clustering::get_revision() const {
+    return handle->get_revision();
+}
+
+cluster_set _Clustering::get_core_members() const {
+    return handle->get_core_members();
+}
+
+std::vector<datum> _Clustering::get_k_center() const {
+    return handle->get_k_center();
+}
+
+datum _Clustering::get_nearest_center(const datum& d) const {
+    return handle->get_nearest_center(d);
+}
+
+cluster_unit _Clustering::get_nearest_members(const datum& d) const {
+    return handle->get_nearest_members(d);
 }

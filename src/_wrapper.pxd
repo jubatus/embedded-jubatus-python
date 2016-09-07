@@ -69,6 +69,19 @@ cdef extern from '_wrapper.h':
         string get_config()
         void clear()
 
+    cdef cppclass _Clustering:
+        _Clustering(const string& config) except +
+        void push(const vector[datum]& points)
+        size_t get_revision()
+        vector[vector[pair[double, datum]]] get_core_members()
+        vector[datum] get_k_center()
+        datum get_nearest_center(const datum& d)
+        vector[pair[double, datum]] get_nearest_members(const datum& d)
+        string dump(const string& type, uint64_t ver)
+        void load(const string& data, const string& type, uint64_t ver)
+        string get_config()
+        void clear()
+
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter':
     cdef cppclass datum:
         vector[pair[string, string]] string_values_

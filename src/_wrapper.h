@@ -6,6 +6,7 @@
 #include <jubatus/core/framework/stream_writer.hpp>
 #include <jubatus/core/driver/anomaly.hpp>
 #include <jubatus/core/driver/classifier.hpp>
+#include <jubatus/core/driver/clustering.hpp>
 #include <jubatus/core/driver/nearest_neighbor.hpp>
 #include <jubatus/core/driver/recommender.hpp>
 #include <jubatus/core/driver/regression.hpp>
@@ -13,6 +14,8 @@
 using jubatus::util::lang::shared_ptr;
 using jubatus::core::fv_converter::datum;
 using jubatus::core::classifier::classify_result;
+using jubatus::core::clustering::cluster_unit;
+using jubatus::core::clustering::cluster_set;
 
 std::string pack_model(const std::string& type,
                        const std::string& config,
@@ -137,4 +140,16 @@ public:
     float overwrite(const std::string &id, const datum& d);
     float calc_score(const datum& d) const;
     std::vector<std::string> get_all_rows() const;
+};
+
+class _Clustering : public _Base<jubatus::core::driver::clustering> {
+public:
+    _Clustering(const std::string& config);
+    ~_Clustering() {}
+    void push(const std::vector<datum>& points);
+    size_t get_revision() const;
+    cluster_set get_core_members() const;
+    std::vector<datum> get_k_center() const;
+    datum get_nearest_center(const datum& d) const;
+    cluster_unit get_nearest_members(const datum& d) const;
 };
