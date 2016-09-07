@@ -13,18 +13,18 @@
   - [X] train
   - [X] estimate
   - [X] load / dump / clear / get_config
-- [ ] [Recommender](http://jubat.us/ja/api_recommender.html)
-  - [ ] clear_row
-  - [ ] update_row
-  - [ ] complete_row_from_id
-  - [ ] complete_row_from_datum
-  - [ ] similar_row_from_id
-  - [ ] similar_row_from_datum
-  - [ ] decode_row
-  - [ ] get_all_rows
-  - [ ] calc_similarity
-  - [ ] calc_l2norm
-  - [ ] load / dump / clear / get_config
+- [X] [Recommender](http://jubat.us/ja/api_recommender.html)
+  - [X] clear_row
+  - [X] update_row
+  - [X] complete_row_from_id
+  - [X] complete_row_from_datum
+  - [X] similar_row_from_id
+  - [X] similar_row_from_datum
+  - [X] decode_row
+  - [X] get_all_rows
+  - [X] calc_similarity
+  - [X] calc_l2norm
+  - [X] load / dump / clear / get_config
 - [ ] [Nearest Neighbor](http://jubat.us/ja/api_nearest_neighbor.html)
   - [ ] set_row
   - [ ] neighbor_row_from_id

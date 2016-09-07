@@ -5,6 +5,7 @@
 #include <jubatus/core/fv_converter/datum.hpp>
 #include <jubatus/core/framework/stream_writer.hpp>
 #include <jubatus/core/driver/classifier.hpp>
+#include <jubatus/core/driver/recommender.hpp>
 #include <jubatus/core/driver/regression.hpp>
 
 using jubatus::util::lang::shared_ptr;
@@ -89,4 +90,20 @@ public:
     ~_Regression() {}
     void train(float score, const datum& d);
     float estimate(const datum& d);
+};
+
+class _Recommender : public _Base<jubatus::core::driver::recommender> {
+public:
+    _Recommender(const std::string& config);
+    ~_Recommender() {}
+    void clear_row(const std::string& id);
+    void update_row(const std::string& id, const datum& d);
+    datum complete_row_from_id(const std::string& id);
+    datum complete_row_from_datum(const datum& d);
+    std::vector<std::pair<std::string, float> > similar_row_from_id(const std::string& id, size_t ret_num);
+    std::vector<std::pair<std::string, float> > similar_row_from_datum(const datum& d, size_t ret_num);
+    datum decode_row(const std::string& id);
+    std::vector<std::string> get_all_rows();
+    float calc_similarity(const datum& l, const datum& r);
+    float calc_l2norm(const datum& d);
 };

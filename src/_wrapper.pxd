@@ -26,6 +26,23 @@ cdef extern from '_wrapper.h':
         string get_config()
         void clear()
 
+    cdef cppclass _Recommender:
+        _Recommender(const string& config) except +
+        void clear_row(const string& id)
+        void update_row(const string& id, const datum& d)
+        datum complete_row_from_id(const string& id)
+        datum complete_row_from_datum(const datum& d)
+        vector[pair[string, float]] similar_row_from_id(const string& id, size_t ret_num)
+        vector[pair[string, float]] similar_row_from_datum(const datum& d, size_t ret_num)
+        datum decode_row(const string& id)
+        vector[string] get_all_rows()
+        float calc_similarity(const datum& l, const datum& r)
+        float calc_l2norm(const datum& d)
+        string dump(const string& type, uint64_t ver)
+        void load(const string& data, const string& type, uint64_t ver)
+        string get_config()
+        void clear()
+
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter':
     cdef cppclass datum:
         vector[pair[string, string]] string_values_

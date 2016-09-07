@@ -4,6 +4,7 @@
 #include <jubatus/core/fv_converter/converter_config.hpp>
 #include <jubatus/core/storage/storage_factory.hpp>
 #include <jubatus/core/classifier/classifier_factory.hpp>
+#include <jubatus/core/recommender/recommender_factory.hpp>
 #include <jubatus/core/regression/regression_factory.hpp>
 
 #include "_wrapper.h"
@@ -88,4 +89,58 @@ void _Regression::train(float score, const datum& d) {
 
 float _Regression::estimate(const datum& d) {
     return handle->estimate(d);
+}
+
+_Recommender::_Recommender(const std::string& config) {
+    using jubatus::core::driver::recommender;
+    using jubatus::core::recommender::recommender_factory;
+    std::string method;
+    jsonconfig::config params;
+    converter_config fvconv_config;
+    parse_config(config, method, params, fvconv_config);
+    std::string my_id;
+    handle.reset(new recommender(
+        recommender_factory::create_recommender(method, params, my_id),
+        make_fv_converter(fvconv_config, NULL)));
+    this->config.assign(config);
+}
+
+void _Recommender::clear_row(const std::string& id) {
+    handle->clear_row(id);
+}
+
+void _Recommender::update_row(const std::string& id, const datum& d) {
+    handle->update_row(id, d);
+}
+
+datum _Recommender::complete_row_from_id(const std::string& id) {
+    return handle->complete_row_from_id(id);
+}
+
+datum _Recommender::complete_row_from_datum(const datum& d) {
+    return handle->complete_row_from_datum(d);
+}
+
+std::vector<std::pair<std::string, float> > _Recommender::similar_row_from_id(const std::string& id, size_t ret_num) {
+    return handle->similar_row_from_id(id, ret_num);
+}
+
+std::vector<std::pair<std::string, float> > _Recommender::similar_row_from_datum(const datum& d, size_t ret_num) {
+    return handle->similar_row_from_datum(d, ret_num);
+}
+
+datum _Recommender::decode_row(const std::string& id) {
+    return handle->decode_row(id);
+}
+
+std::vector<std::string> _Recommender::get_all_rows() {
+    return handle->get_all_rows();
+}
+
+float _Recommender::calc_similarity(const datum& l, const datum& r) {
+    return handle->calc_similarity(l, r);
+}
+
+float _Recommender::calc_l2norm(const datum& d) {
+    return handle->calc_l2norm(d);
 }
