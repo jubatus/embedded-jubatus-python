@@ -33,10 +33,14 @@ class _JubatusBase(object):
         raise RuntimeError
 
 include 'types.pyx'
+include 'anomaly.pyx'
 include 'classifier.pyx'
 include 'nearest_neighbor.pyx'
 include 'recommender.pyx'
 include 'regression.pyx'
+
+class Anomaly(_JubatusBase, _AnomalyWrapper):
+    pass
 
 class Classifier(_JubatusBase, _ClassifierWrapper):
     pass

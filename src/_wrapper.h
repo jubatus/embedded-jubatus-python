@@ -4,6 +4,7 @@
 #include <jubatus/util/text/json.h>
 #include <jubatus/core/fv_converter/datum.hpp>
 #include <jubatus/core/framework/stream_writer.hpp>
+#include <jubatus/core/driver/anomaly.hpp>
 #include <jubatus/core/driver/classifier.hpp>
 #include <jubatus/core/driver/nearest_neighbor.hpp>
 #include <jubatus/core/driver/recommender.hpp>
@@ -57,7 +58,7 @@ public:
         return pack_model(type, config, ID, user_data_buf);
     }
 
-    void load(const std::string& data, const std::string& type, uint64_t version) {
+    virtual void load(const std::string& data, const std::string& type, uint64_t version) {
         msgpack::unpacked unpacked;
         uint64_t user_data_version;
         msgpack::object *user_data;
@@ -121,4 +122,19 @@ public:
     id_score_list_t similar_row_from_id(const std::string& id, size_t size);
     id_score_list_t similar_row_from_datum(const datum& d, size_t size);
     std::vector<std::string> get_all_rows();
+};
+
+class _Anomaly : public _Base<jubatus::core::driver::anomaly> {
+    uint64_t idgen;
+public:
+    _Anomaly(const std::string& config);
+    ~_Anomaly() {}
+    void load(const std::string& data, const std::string& type, uint64_t version);
+
+    void clear_row(const std::string& id);
+    std::pair<std::string, float> add(const datum& d);
+    float update(const std::string& id, const datum& d);
+    float overwrite(const std::string &id, const datum& d);
+    float calc_score(const datum& d) const;
+    std::vector<std::string> get_all_rows() const;
 };

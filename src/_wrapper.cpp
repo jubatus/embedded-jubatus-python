@@ -4,6 +4,7 @@
 #include <jubatus/core/fv_converter/converter_config.hpp>
 #include <jubatus/core/storage/storage_factory.hpp>
 #include <jubatus/core/storage/column_table.hpp>
+#include <jubatus/core/anomaly/anomaly_factory.hpp>
 #include <jubatus/core/classifier/classifier_factory.hpp>
 #include <jubatus/core/nearest_neighbor/nearest_neighbor_factory.hpp>
 #include <jubatus/core/recommender/recommender_factory.hpp>
@@ -16,10 +17,10 @@ using jubatus::core::fv_converter::converter_config;
 using jubatus::core::fv_converter::make_fv_converter;
 using jubatus::core::storage::storage_base;
 using jubatus::core::storage::storage_factory;
+using jubatus::util::lang::lexical_cast;
 
 void parse_config(const std::string& config, std::string& method,
                   jsonconfig::config& params, converter_config& fvconv_config) {
-    using jubatus::util::lang::lexical_cast;
     using jubatus::util::text::json::json;
     using jubatus::util::text::json::json_string;
     using jubatus::util::text::json::from_json;
@@ -184,5 +185,49 @@ id_score_list_t _NearestNeighbor::similar_row_from_datum(const datum& d, size_t 
 }
 
 std::vector<std::string> _NearestNeighbor::get_all_rows() {
+    return handle->get_all_rows();
+}
+
+_Anomaly::_Anomaly(const std::string& config) : idgen(0) {
+    using jubatus::core::driver::anomaly;
+    using jubatus::core::anomaly::anomaly_factory;
+    std::string method;
+    jsonconfig::config params;
+    converter_config fvconv_config;
+    parse_config(config, method, params, fvconv_config);
+    std::string my_id;
+    handle.reset(new anomaly(
+        anomaly_factory::create_anomaly(method, params, my_id),
+        make_fv_converter(fvconv_config, NULL)));
+    this->config.assign(config);
+}
+
+void _Anomaly::load(const std::string& data, const std::string& type, uint64_t version) {
+    _Base::load(data, type, version);
+    idgen = handle->find_max_int_id() + 1;
+}
+
+void _Anomaly::clear_row(const std::string& id) {
+    handle->clear_row(id);
+}
+
+std::pair<std::string, float> _Anomaly::add(const datum& d) {
+    std::string id = lexical_cast<std::string>(idgen++);
+    return handle->add(id, d);
+}
+
+float _Anomaly::update(const std::string& id, const datum& d) {
+    return handle->update(id, d);
+}
+
+float _Anomaly::overwrite(const std::string &id, const datum& d) {
+    return handle->overwrite(id, d);
+}
+
+float _Anomaly::calc_score(const datum& d) const {
+    return handle->calc_score(d);
+}
+
+std::vector<std::string> _Anomaly::get_all_rows() const {
     return handle->get_all_rows();
 }

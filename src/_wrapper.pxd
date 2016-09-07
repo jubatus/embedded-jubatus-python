@@ -56,6 +56,19 @@ cdef extern from '_wrapper.h':
         string get_config()
         void clear()
 
+    cdef cppclass _Anomaly:
+        _Anomaly(const string& config) except +
+        void clear_row(const string& id)
+        pair[string, float] add(const datum& d)
+        float update(const string& id, const datum& d)
+        float overwrite(const string& id, const datum& d)
+        float calc_score(const datum& d)
+        vector[string] get_all_rows()
+        string dump(const string& type, uint64_t ver)
+        void load(const string& data, const string& type, uint64_t ver)
+        string get_config()
+        void clear()
+
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter':
     cdef cppclass datum:
         vector[pair[string, string]] string_values_
