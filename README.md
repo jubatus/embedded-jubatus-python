@@ -25,13 +25,13 @@
   - [X] calc_similarity
   - [X] calc_l2norm
   - [X] load / dump / clear / get_config
-- [ ] [Nearest Neighbor](http://jubat.us/ja/api_nearest_neighbor.html)
-  - [ ] set_row
-  - [ ] neighbor_row_from_id
-  - [ ] similar_row_from_id
-  - [ ] similar_row_from_datum
-  - [ ] get_all_rows
-  - [ ] load / dump / clear / get_config
+- [X] [Nearest Neighbor](http://jubat.us/ja/api_nearest_neighbor.html)
+  - [X] set_row
+  - [X] neighbor_row_from_id
+  - [X] similar_row_from_id
+  - [X] similar_row_from_datum
+  - [X] get_all_rows
+  - [X] load / dump / clear / get_config
 - [ ] [Anomaly](http://jubat.us/ja/api_anomaly.html)
   - [ ] add
   - [ ] calc_score

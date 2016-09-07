@@ -5,6 +5,7 @@
 #include <jubatus/core/fv_converter/datum.hpp>
 #include <jubatus/core/framework/stream_writer.hpp>
 #include <jubatus/core/driver/classifier.hpp>
+#include <jubatus/core/driver/nearest_neighbor.hpp>
 #include <jubatus/core/driver/recommender.hpp>
 #include <jubatus/core/driver/regression.hpp>
 
@@ -73,6 +74,8 @@ public:
     }
 };
 
+typedef std::vector<std::pair<std::string, float> > id_score_list_t;
+
 class _Classifier : public _Base<jubatus::core::driver::classifier> {
 public:
     _Classifier(const std::string& config);
@@ -100,10 +103,22 @@ public:
     void update_row(const std::string& id, const datum& d);
     datum complete_row_from_id(const std::string& id);
     datum complete_row_from_datum(const datum& d);
-    std::vector<std::pair<std::string, float> > similar_row_from_id(const std::string& id, size_t ret_num);
-    std::vector<std::pair<std::string, float> > similar_row_from_datum(const datum& d, size_t ret_num);
+    id_score_list_t similar_row_from_id(const std::string& id, size_t ret_num);
+    id_score_list_t similar_row_from_datum(const datum& d, size_t ret_num);
     datum decode_row(const std::string& id);
     std::vector<std::string> get_all_rows();
     float calc_similarity(const datum& l, const datum& r);
     float calc_l2norm(const datum& d);
+};
+
+class _NearestNeighbor : public _Base<jubatus::core::driver::nearest_neighbor> {
+public:
+    _NearestNeighbor(const std::string& config);
+    ~_NearestNeighbor() {}
+    void set_row(const std::string& id, const datum& d);
+    id_score_list_t neighbor_row_from_id(const std::string& id, size_t size);
+    id_score_list_t neighbor_row_from_datum(const datum& d, size_t size);
+    id_score_list_t similar_row_from_id(const std::string& id, size_t size);
+    id_score_list_t similar_row_from_datum(const datum& d, size_t size);
+    std::vector<std::string> get_all_rows();
 };

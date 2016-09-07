@@ -34,14 +34,18 @@ class _JubatusBase(object):
 
 include 'types.pyx'
 include 'classifier.pyx'
-include 'regression.pyx'
+include 'nearest_neighbor.pyx'
 include 'recommender.pyx'
+include 'regression.pyx'
 
 class Classifier(_JubatusBase, _ClassifierWrapper):
     pass
 
-class Regression(_JubatusBase, _RegressionWrapper):
+class NearestNeighbor(_JubatusBase, _NearestNeighborWrapper):
     pass
 
 class Recommender(_JubatusBase, _RecommenderWrapper):
+    pass
+
+class Regression(_JubatusBase, _RegressionWrapper):
     pass

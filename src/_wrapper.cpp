@@ -3,7 +3,9 @@
 #include <jubatus/core/common/jsonconfig.hpp>
 #include <jubatus/core/fv_converter/converter_config.hpp>
 #include <jubatus/core/storage/storage_factory.hpp>
+#include <jubatus/core/storage/column_table.hpp>
 #include <jubatus/core/classifier/classifier_factory.hpp>
+#include <jubatus/core/nearest_neighbor/nearest_neighbor_factory.hpp>
 #include <jubatus/core/recommender/recommender_factory.hpp>
 #include <jubatus/core/regression/regression_factory.hpp>
 
@@ -143,4 +145,44 @@ float _Recommender::calc_similarity(const datum& l, const datum& r) {
 
 float _Recommender::calc_l2norm(const datum& d) {
     return handle->calc_l2norm(d);
+}
+
+_NearestNeighbor::_NearestNeighbor(const std::string& config) {
+    using jubatus::core::storage::column_table;
+    using jubatus::core::driver::nearest_neighbor;
+    using jubatus::core::nearest_neighbor::create_nearest_neighbor;
+    std::string method;
+    jsonconfig::config params;
+    converter_config fvconv_config;
+    parse_config(config, method, params, fvconv_config);
+    std::string my_id;
+    shared_ptr<column_table> table(new column_table);
+    handle.reset(new nearest_neighbor(
+        create_nearest_neighbor(method, params, table, my_id),
+        make_fv_converter(fvconv_config, NULL)));
+    this->config.assign(config);
+}
+
+void _NearestNeighbor::set_row(const std::string& id, const datum& d) {
+    handle->set_row(id, d);
+}
+
+id_score_list_t _NearestNeighbor::neighbor_row_from_id(const std::string& id, size_t size) {
+    return handle->neighbor_row_from_id(id, size);
+}
+
+id_score_list_t _NearestNeighbor::neighbor_row_from_datum(const datum& d, size_t size) {
+    return handle->neighbor_row_from_datum(d, size);
+}
+
+id_score_list_t _NearestNeighbor::similar_row_from_id(const std::string& id, size_t size) {
+    return handle->similar_row(id, size);
+}
+
+id_score_list_t _NearestNeighbor::similar_row_from_datum(const datum& d, size_t size) {
+    return handle->similar_row(d, size);
+}
+
+std::vector<std::string> _NearestNeighbor::get_all_rows() {
+    return handle->get_all_rows();
 }
