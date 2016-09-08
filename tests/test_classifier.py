@@ -95,6 +95,6 @@ class TestClassifier(unittest.TestCase):
             Datum({'x': 'y'}),
             Datum({'x': 'n'})
         ])
-        self.assertIsInstance(y[0][0], EstimateResult)
+        self.assertTrue(isinstance(y[0][0], EstimateResult))
         self.assertEqual(['Y', 'N'], [list(sorted(
             z, key=lambda x:x.score, reverse=True))[0].label for z in y])
