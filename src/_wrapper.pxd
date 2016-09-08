@@ -104,6 +104,19 @@ cdef extern from '_wrapper.h':
         string get_config()
         void clear()
 
+    cdef cppclass _Bandit:
+        _Bandit(const string& config) except +
+        bool register_arm(const string& arm_id)
+        bool delete_arm(const string& arm_id)
+        string select_arm(const string& player_id)
+        bool register_reward(const string& player_id, const string& arm_id, double reward)
+        map[string, arm_info] get_arm_info(const string& player_id)
+        bool reset(const string& player_id)
+        string dump(const string& type, uint64_t ver)
+        void load(const string& data, const string& type, uint64_t ver)
+        string get_config()
+        void clear()
+
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter':
     cdef cppclass datum:
         vector[pair[string, string]] string_values_
@@ -124,3 +137,8 @@ cdef extern from 'jubatus/core/burst/burst.hpp' namespace 'jubatus::core::burst'
         string keyword
         double scaling_param
         double gamma
+
+cdef extern from 'jubatus/core/bandit/arm_info.hpp' namespace 'jubatus::core::bandit':
+    cdef cppclass arm_info:
+        int trial_count
+        double weight

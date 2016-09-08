@@ -5,6 +5,7 @@
 #include <jubatus/core/fv_converter/datum.hpp>
 #include <jubatus/core/framework/stream_writer.hpp>
 #include <jubatus/core/driver/anomaly.hpp>
+#include <jubatus/core/driver/bandit.hpp>
 #include <jubatus/core/driver/burst.hpp>
 #include <jubatus/core/driver/classifier.hpp>
 #include <jubatus/core/driver/clustering.hpp>
@@ -179,4 +180,16 @@ public:
     bool remove_keyword(const std::string& keyword);
     bool remove_all_keywords();
     void calculate_results();
+};
+
+class _Bandit : public _Base<jubatus::core::driver::bandit> {
+public:
+    _Bandit(const std::string& config);
+    ~_Bandit() {}
+    bool register_arm(const std::string& arm_id);
+    bool delete_arm(const std::string& arm_id);
+    std::string select_arm(const std::string& player_id);
+    bool register_reward(const std::string& player_id, const std::string& arm_id, double reward);
+    std::map<std::string, jubatus::core::bandit::arm_info> get_arm_info(const std::string& player_id) const;
+    bool reset(const std::string& player_id);
 };

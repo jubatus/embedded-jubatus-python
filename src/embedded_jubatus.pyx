@@ -37,6 +37,7 @@ class _JubatusBase(object):
 
 include 'types.pyx'
 include 'anomaly.pyx'
+include 'bandit.pyx'
 include 'burst.pyx'
 include 'classifier.pyx'
 include 'clustering.pyx'
@@ -45,6 +46,9 @@ include 'recommender.pyx'
 include 'regression.pyx'
 
 class Anomaly(_JubatusBase, _AnomalyWrapper):
+    pass
+
+class Bandit(_JubatusBase, _BanditWrapper):
     pass
 
 class Burst(_JubatusBase, _BurstWrapper):

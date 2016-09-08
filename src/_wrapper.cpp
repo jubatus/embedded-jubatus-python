@@ -362,3 +362,42 @@ bool _Burst::remove_all_keywords() {
 void _Burst::calculate_results() {
     handle->calculate_results();
 }
+
+_Bandit::_Bandit(const std::string& config) {
+    using jubatus::core::driver::bandit;
+    std::string method;
+    jsonconfig::config params;
+    parse_config(config, method, params);
+    handle.reset(new bandit(method, params));
+    this->config.assign(config);
+}
+
+bool _Bandit::register_arm(const std::string& arm_id) {
+    return handle->register_arm(arm_id);
+}
+
+bool _Bandit::delete_arm(const std::string& arm_id) {
+    return handle->delete_arm(arm_id);
+}
+
+std::string _Bandit::select_arm(const std::string& player_id) {
+    return handle->select_arm(player_id);
+}
+
+bool _Bandit::register_reward(const std::string& player_id, const std::string& arm_id, double reward) {
+    return handle->register_reward(player_id, arm_id, reward);
+}
+
+std::map<std::string, jubatus::core::bandit::arm_info> _Bandit::get_arm_info(const std::string& player_id) const {
+    using jubatus::core::bandit::arm_info_map;
+    std::map<std::string, jubatus::core::bandit::arm_info> ret;
+    arm_info_map r = handle->get_arm_info(player_id);
+    for (arm_info_map::iterator it = r.begin(); it != r.end(); ++it) {
+        ret[it->first] = it->second;
+    }
+    return ret;
+}
+
+bool _Bandit::reset(const std::string& player_id) {
+    return handle->reset(player_id);
+}

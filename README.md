@@ -59,13 +59,13 @@
   - [X] remove_keyword
   - [X] remove_all_keywords
   - [X] load / dump / clear / get_config
-- [ ] [Bandit](http://jubat.us/ja/api_bandit.html)
-  - [ ] register_arm
-  - [ ] delete_arm
-  - [ ] select_arm
-  - [ ] register_reward
-  - [ ] get_arm_info
-  - [ ] reset
-  - [ ] load / dump / clear / get_config
+- [X] [Bandit](http://jubat.us/ja/api_bandit.html)
+  - [X] register_arm
+  - [X] delete_arm
+  - [X] select_arm
+  - [X] register_reward
+  - [X] get_arm_info
+  - [X] reset
+  - [X] load / dump / clear / get_config
 - [ ] [Stat](http://jubat.us/ja/api_stat.html)
 - [ ] [Graph](http://jubat.us/ja/api_graph.html)
