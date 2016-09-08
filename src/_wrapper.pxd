@@ -3,6 +3,7 @@ from libcpp cimport bool
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
+from libcpp.map cimport map
 
 cdef extern from '_wrapper.h':
     cdef cppclass _Classifier:
@@ -82,6 +83,27 @@ cdef extern from '_wrapper.h':
         string get_config()
         void clear()
 
+    cdef cppclass _Burst:
+        cppclass Batch:
+            int all_data_count
+            int relevant_data_count
+            double burst_weight
+        _Burst(const string& config) except +
+        bool add_document(const string& str, double pos)
+        pair[double,vector[Batch]] get_result(const string& keyword)
+        pair[double,vector[Batch]] get_result_at(const string& keyword, double pos)
+        map[string, pair[double,vector[Batch]]] get_all_bursted_results()
+        map[string, pair[double,vector[Batch]]] get_all_bursted_results_at(double pos)
+        vector[keyword_with_params] get_all_keywords()
+        bool add_keyword(const string& keyword, const keyword_params& params)
+        bool remove_keyword(const string& keyword)
+        bool remove_all_keywords()
+        void calculate_results()
+        string dump(const string& type, uint64_t ver)
+        void load(const string& data, const string& type, uint64_t ver)
+        string get_config()
+        void clear()
+
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter':
     cdef cppclass datum:
         vector[pair[string, string]] string_values_
@@ -92,3 +114,13 @@ cdef extern from 'jubatus/core/classifier/classifier_type.hpp' namespace 'jubatu
     cdef cppclass classify_result_elem:
         string label
         float score
+
+cdef extern from 'jubatus/core/burst/burst.hpp' namespace 'jubatus::core::burst':
+    cdef cppclass keyword_params:
+        double scaling_param
+        double gamma
+
+    cdef cppclass keyword_with_params:
+        string keyword
+        double scaling_param
+        double gamma

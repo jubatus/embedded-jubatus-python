@@ -2,6 +2,9 @@ from libc.stdint cimport uint64_t
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
+from libcpp.map cimport map
+from cython.operator cimport dereference
+from cython.operator cimport preincrement
 
 class _JubatusBase(object):
     def __init__(self, config):
@@ -34,6 +37,7 @@ class _JubatusBase(object):
 
 include 'types.pyx'
 include 'anomaly.pyx'
+include 'burst.pyx'
 include 'classifier.pyx'
 include 'clustering.pyx'
 include 'nearest_neighbor.pyx'
@@ -41,6 +45,9 @@ include 'recommender.pyx'
 include 'regression.pyx'
 
 class Anomaly(_JubatusBase, _AnomalyWrapper):
+    pass
+
+class Burst(_JubatusBase, _BurstWrapper):
     pass
 
 class Classifier(_JubatusBase, _ClassifierWrapper):

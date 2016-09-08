@@ -40,25 +40,25 @@
   - [X] overwrite
   - [X] get_all_rows
   - [X] load / dump / clear / get_config
-- [ ] [Clustering](http://jubat.us/ja/api_clustering.html)
-  - [ ] push
-  - [ ] get_revision
-  - [ ] get_core_members
-  - [ ] get_k_center
-  - [ ] get_nearest_center
-  - [ ] get_nearest_members
-  - [ ] load / dump / clear / get_config
-- [ ] [Burst](http://jubat.us/ja/api_burst.html)
-  - [ ] add_documents
-  - [ ] get_result
-  - [ ] get_result_at
-  - [ ] get_all_bursted_results
-  - [ ] get_all_bursted_results_at
-  - [ ] get_all_keywords
-  - [ ] add_keyword
-  - [ ] remove_keyword
-  - [ ] remove_all_keywords
-  - [ ] load / dump / clear / get_config
+- [X] [Clustering](http://jubat.us/ja/api_clustering.html)
+  - [X] push
+  - [X] get_revision
+  - [X] get_core_members
+  - [X] get_k_center
+  - [X] get_nearest_center
+  - [X] get_nearest_members
+  - [X] load / dump / clear / get_config
+- [X] [Burst](http://jubat.us/ja/api_burst.html)
+  - [X] add_documents
+  - [X] get_result
+  - [X] get_result_at
+  - [X] get_all_bursted_results
+  - [X] get_all_bursted_results_at
+  - [X] get_all_keywords
+  - [X] add_keyword
+  - [X] remove_keyword
+  - [X] remove_all_keywords
+  - [X] load / dump / clear / get_config
 - [ ] [Bandit](http://jubat.us/ja/api_bandit.html)
   - [ ] register_arm
   - [ ] delete_arm

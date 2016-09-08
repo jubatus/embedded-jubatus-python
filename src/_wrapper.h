@@ -5,6 +5,7 @@
 #include <jubatus/core/fv_converter/datum.hpp>
 #include <jubatus/core/framework/stream_writer.hpp>
 #include <jubatus/core/driver/anomaly.hpp>
+#include <jubatus/core/driver/burst.hpp>
 #include <jubatus/core/driver/classifier.hpp>
 #include <jubatus/core/driver/clustering.hpp>
 #include <jubatus/core/driver/nearest_neighbor.hpp>
@@ -152,4 +153,30 @@ public:
     std::vector<datum> get_k_center() const;
     datum get_nearest_center(const datum& d) const;
     cluster_unit get_nearest_members(const datum& d) const;
+};
+
+class _Burst : public _Base<jubatus::core::driver::burst> {
+public:
+    typedef jubatus::core::burst::keyword_params keyword_params;
+    typedef jubatus::core::burst::burst::keyword_list keyword_list;
+    struct Batch {
+        int all_data_count;
+        int relevant_data_count;
+        double burst_weight;
+    };
+    typedef std::pair<double, std::vector<Batch> > window;
+    typedef std::map<std::string, window> window_map;
+
+    _Burst(const std::string& config);
+    ~_Burst() {}
+    bool add_document(const std::string& str, double pos);
+    window get_result(const std::string& keyword) const;
+    window get_result_at(const std::string& keyword, double pos) const;
+    window_map get_all_bursted_results() const;
+    window_map get_all_bursted_results_at(double pos) const;
+    keyword_list get_all_keywords() const;
+    bool add_keyword(const std::string& keyword, const keyword_params& params);
+    bool remove_keyword(const std::string& keyword);
+    bool remove_all_keywords();
+    void calculate_results();
 };

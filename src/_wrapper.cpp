@@ -21,6 +21,19 @@ using jubatus::core::storage::storage_factory;
 using jubatus::util::lang::lexical_cast;
 
 void parse_config(const std::string& config, std::string& method,
+                  jsonconfig::config& params) {
+    using jubatus::util::text::json::json;
+    using jubatus::util::text::json::json_string;
+    using jubatus::util::text::json::from_json;
+    json config_json = lexical_cast<json>(config);
+    json_string *method_value = (json_string*)config_json["method"].get();
+    if (!method_value || method_value->type() != json::String)
+        throw std::invalid_argument("invalid config (method)");
+    method.assign(method_value->get());
+    params = jsonconfig::config(config_json["parameter"]);
+}
+
+void parse_config(const std::string& config, std::string& method,
                   jsonconfig::config& params, converter_config& fvconv_config) {
     using jubatus::util::text::json::json;
     using jubatus::util::text::json::json_string;
@@ -271,4 +284,81 @@ datum _Clustering::get_nearest_center(const datum& d) const {
 
 cluster_unit _Clustering::get_nearest_members(const datum& d) const {
     return handle->get_nearest_members(d);
+}
+
+_Burst::_Burst(const std::string& config) {
+    using jubatus::core::burst::burst;
+    using jubatus::core::burst::burst_options;
+    std::string method;
+    jsonconfig::config params;
+    parse_config(config, method, params);
+    burst_options opts = jsonconfig::config_cast_check<burst_options>(params);
+    handle.reset(new jubatus::core::driver::burst(new burst(opts)));
+    this->config.assign(config);
+}
+
+bool _Burst::add_document(const std::string& str, double pos) {
+    return handle->add_document(str, pos);
+}
+
+_Burst::window to_window(const jubatus::core::burst::burst_result& x) {
+    using jubatus::core::burst::batch_result;
+    std::vector<_Burst::Batch> ret;
+    double start_pos = x.get_start_pos();
+    const std::vector<batch_result>& batches = x.get_batches();
+    ret.reserve(batches.size());
+    for (size_t i = 0; i < batches.size(); ++i) {
+        _Burst::Batch b;
+        b.all_data_count = batches[i].d;
+        b.relevant_data_count = batches[i].r;
+        b.burst_weight = batches[i].burst_weight;
+        ret.push_back(b);
+    }
+    return std::make_pair(start_pos, ret);
+}
+
+std::map<std::string, _Burst::window>
+to_window_map(const jubatus::core::burst::burst::result_map& x) {
+    std::map<std::string, _Burst::window> result;
+    for (jubatus::core::burst::burst::result_map::const_iterator iter = x.begin();
+         iter != x.end(); ++iter) {
+        result.insert(std::make_pair(iter->first, to_window(iter->second)));
+    }
+    return result;
+}
+
+_Burst::window _Burst::get_result(const std::string& keyword) const {
+    return to_window(handle->get_result(keyword));
+}
+
+_Burst::window _Burst::get_result_at(const std::string& keyword, double pos) const {
+    return to_window(handle->get_result_at(keyword, pos));
+}
+
+_Burst::window_map _Burst::get_all_bursted_results() const {
+    return to_window_map(handle->get_all_bursted_results());
+}
+
+_Burst::window_map _Burst::get_all_bursted_results_at(double pos) const {
+    return to_window_map(handle->get_all_bursted_results_at(pos));
+}
+
+_Burst::keyword_list _Burst::get_all_keywords() const {
+    return handle->get_all_keywords();
+}
+
+bool _Burst::add_keyword(const std::string& keyword, const keyword_params& params) {
+    return handle->add_keyword(keyword, params, true);
+}
+
+bool _Burst::remove_keyword(const std::string& keyword) {
+    return handle->remove_keyword(keyword);
+}
+
+bool _Burst::remove_all_keywords() {
+    return handle->remove_all_keywords();
+}
+
+void _Burst::calculate_results() {
+    handle->calculate_results();
 }
