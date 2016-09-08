@@ -1,0 +1,59 @@
+sudo: required
+dist: trusty
+
+language: python
+
+services:
+  - docker
+
+matrix:
+  include:
+    - env:
+      - DIST=centos
+      - VERSION=6
+    - env:
+      - DIST=centos
+      - VERSION=7
+    - env:
+      - DIST=ubuntu
+      - VERSION=12.04
+    - env:
+      - DIST=ubuntu
+      - VERSION=14.04
+
+before_install:
+  - docker pull ${DIST}:${VERSION}
+  - docker run -w /root --name test -d ${DIST}:${VERSION} sleep infinity
+  - docker cp . test:/root/
+  - if [ "$DIST" == "centos" ]; then
+      if [ $VERSION -eq 6 ]; then
+        docker exec test rpm -Uvh http://download.jubat.us/yum/rhel/6/stable/x86_64/jubatus-release-6-2.el6.x86_64.rpm;
+        docker exec test rpm -ivh http://dl.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm;
+      elif [ $VERSION -eq 7 ]; then
+        docker exec test rpm -Uvh http://download.jubat.us/yum/rhel/7/stable/x86_64/jubatus-release-7-2.el7.x86_64.rpm;
+      fi;
+    elif [ "$DIST" == "ubuntu" ]; then
+      if [ "$VERSION" == "12.04" ]; then
+        docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/precise binary/' > /etc/apt/sources.list.d/jubatus.list";
+      elif [ "$VERSION" == "14.04" ]; then
+        docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/trusty binary/' >  /etc/apt/sources.list.d/jubatus.list";
+      fi;
+    fi
+
+install:
+  - if [ "$DIST" == "centos" ]; then
+      docker exec test yum -y install jubatus-devel jubatus-core-devel gcc-c++ python-devel epel-release;
+      docker exec test yum -y install python-pip;
+    fi
+  - if [ "$DIST" == "ubuntu" ]; then
+      docker exec test apt-get -y update;
+      docker exec test apt-get  --force-yes -y install jubatus python-dev python-pip g++;
+    fi
+  - docker exec test pip install jubatus cython
+
+script:
+  - if [ "$DIST" == "centos" ]; then
+      docker exec -t test bash -ic "python ./setup.py build_ext -i";
+    elif [ "$DIST" == "ubuntu" ]; then
+      docker exec -t test bash -ic "source /opt/jubatus/profile; python ./setup.py build_ext -i";
+    fi
