@@ -1,5 +1,7 @@
 # embedded-jubatus-python
 
+[![Build Status](https://travis-ci.org/kazuki/embedded-jubatus-python.svg?branch=refactoring)](https://travis-ci.org/kazuki/embedded-jubatus-python)
+
 ## Supported APIs
 
 - [X] [Classifier](http://jubat.us/ja/api_classifier.html)
