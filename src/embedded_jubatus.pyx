@@ -6,6 +6,33 @@ from libcpp.map cimport map
 from cython.operator cimport dereference
 from cython.operator cimport preincrement
 
+from _wrapper cimport _Anomaly
+from _wrapper cimport _Bandit
+from _wrapper cimport _Burst
+from _wrapper cimport _Classifier
+from _wrapper cimport _Clustering
+from _wrapper cimport _NearestNeighbor
+from _wrapper cimport _Recommender
+from _wrapper cimport _Regression
+from _wrapper cimport arm_info
+from _wrapper cimport classify_result_elem
+from _wrapper cimport keyword_params
+from _wrapper cimport keyword_with_params
+
+from jubatus.anomaly.types import IdWithScore as AnomalyIdWithScore
+from jubatus.bandit.types import ArmInfo
+from jubatus.burst.types import Batch
+from jubatus.burst.types import Document
+from jubatus.burst.types import KeywordWithParams
+from jubatus.burst.types import Window
+from jubatus.classifier.types import EstimateResult
+from jubatus.classifier.types import LabeledDatum
+from jubatus.clustering.types import WeightedDatum
+from jubatus.nearest_neighbor.types import IdWithScore as NNIdWithScore
+from jubatus.recommender.types import IdWithScore as RecommenderIdWithScore
+from jubatus.regression.types import ScoredDatum
+
+
 class _JubatusBase(object):
     def __init__(self, config):
         import json

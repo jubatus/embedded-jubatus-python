@@ -1,7 +1,3 @@
-from _wrapper cimport _Recommender
-
-from jubatus.recommender.types import IdWithScore
-
 cdef class _RecommenderWrapper:
     cdef _Recommender *_handle
 
@@ -46,7 +42,7 @@ cdef class _RecommenderWrapper:
         cdef vector[pair[string, float]] ret
         ret = self._handle.similar_row_from_id(id_.encode('utf8'), size)
         return [
-            IdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            RecommenderIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
             for i in range(ret.size())
         ]
 
@@ -56,7 +52,7 @@ cdef class _RecommenderWrapper:
         datum_py2native(row, d)
         ret = self._handle.similar_row_from_datum(d, size)
         return [
-            IdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            RecommenderIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
             for i in range(ret.size())
         ]
 

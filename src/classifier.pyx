@@ -1,9 +1,3 @@
-from _wrapper cimport _Classifier
-from _wrapper cimport classify_result_elem
-
-from jubatus.classifier.types import EstimateResult
-from jubatus.classifier.types import LabeledDatum
-
 cdef class _ClassifierWrapper:
     cdef _Classifier *_handle
 

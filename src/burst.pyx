@@ -1,12 +1,3 @@
-from _wrapper cimport _Burst
-from _wrapper cimport keyword_params
-from _wrapper cimport keyword_with_params
-
-from jubatus.burst.types import Batch
-from jubatus.burst.types import Document
-from jubatus.burst.types import KeywordWithParams
-from jubatus.burst.types import Window
-
 cdef _to_window(const pair[double, vector[_Burst.Batch]]& r):
     return Window(r.first, [
         Batch(r.second[i].all_data_count,

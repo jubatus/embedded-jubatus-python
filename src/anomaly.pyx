@@ -1,7 +1,3 @@
-from _wrapper cimport _Anomaly
-
-from jubatus.anomaly.types import IdWithScore
-
 cdef class _AnomalyWrapper:
     cdef _Anomaly *_handle
 
@@ -31,7 +27,7 @@ cdef class _AnomalyWrapper:
         cdef pair[string, float] r
         datum_py2native(row, d)
         r = self._handle.add(d)
-        return IdWithScore(r.first.decode('utf8'), r.second)
+        return AnomalyIdWithScore(r.first.decode('utf8'), r.second)
 
     def update(self, id_, row):
         cdef datum d

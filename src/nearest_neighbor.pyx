@@ -1,7 +1,3 @@
-from _wrapper cimport _NearestNeighbor
-
-from jubatus.nearest_neighbor.types import IdWithScore
-
 cdef class _NearestNeighborWrapper:
     cdef _NearestNeighbor *_handle
 
@@ -32,7 +28,7 @@ cdef class _NearestNeighborWrapper:
         cdef vector[pair[string, float]] ret
         ret = self._handle.neighbor_row_from_id(id_.encode('utf8'), size)
         return [
-            IdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            NNIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
             for i in range(ret.size())
         ]
 
@@ -42,7 +38,7 @@ cdef class _NearestNeighborWrapper:
         datum_py2native(dat, d)
         ret = self._handle.neighbor_row_from_datum(d, size)
         return [
-            IdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            NNIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
             for i in range(ret.size())
         ]
 
@@ -50,7 +46,7 @@ cdef class _NearestNeighborWrapper:
         cdef vector[pair[string, float]] ret
         ret = self._handle.similar_row_from_id(id_.encode('utf8'), size)
         return [
-            IdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            NNIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
             for i in range(ret.size())
         ]
 
@@ -60,7 +56,7 @@ cdef class _NearestNeighborWrapper:
         datum_py2native(dat, d)
         ret = self._handle.similar_row_from_datum(d, size)
         return [
-            IdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            NNIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
             for i in range(ret.size())
         ]
 

@@ -1,8 +1,3 @@
-from _wrapper cimport _Bandit
-from _wrapper cimport arm_info
-
-from jubatus.bandit.types import ArmInfo
-
 cdef class _BanditWrapper:
     cdef _Bandit *_handle
 

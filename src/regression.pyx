@@ -1,7 +1,3 @@
-from _wrapper cimport _Regression
-
-from jubatus.regression.types import ScoredDatum
-
 cdef class _RegressionWrapper:
     cdef _Regression *_handle
 

@@ -1,7 +1,3 @@
-from _wrapper cimport _Clustering
-
-from jubatus.clustering.types import WeightedDatum
-
 cdef class _ClusteringWrapper:
     cdef _Clustering *_handle
 
