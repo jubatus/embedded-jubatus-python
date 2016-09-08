@@ -53,7 +53,7 @@ install:
 
 script:
   - if [ "$DIST" == "centos" ]; then
-      docker exec -t test bash -ic "python ./setup.py build_ext -i";
+      docker exec -t test bash -ic "python ./setup.py build_ext -i && python ./setup.py test";
     elif [ "$DIST" == "ubuntu" ]; then
-      docker exec -t test bash -ic "source /opt/jubatus/profile; python ./setup.py build_ext -i";
+      docker exec -t test bash -ic "source /opt/jubatus/profile; python ./setup.py build_ext -i && python ./setup.py test";
     fi

@@ -2,3 +2,4 @@ __pycache__
 /src/embedded_jubatus.cpp
 /build
 /*.so
+*.pyc
