@@ -3,6 +3,7 @@ import unittest
 
 from embedded_jubatus import NearestNeighbor
 from jubatus.common import Datum
+from jubatus.nearest_neighbor.types import IdWithScore
 
 
 CONFIG = {
@@ -53,6 +54,7 @@ class TestNearestNeighbor(unittest.TestCase):
 
         def _check_prefix(expected, lst):
             for x in lst:
+                self.assertTrue(isinstance(x, IdWithScore))
                 self.assertTrue(x.id.startswith(expected))
 
         ret = x.neighbor_row_from_id("a0", 3)
