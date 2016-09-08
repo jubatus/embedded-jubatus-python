@@ -217,7 +217,7 @@ _Anomaly::_Anomaly(const std::string& config) : idgen(0) {
 }
 
 void _Anomaly::load(const std::string& data, const std::string& type, uint64_t version) {
-    _Base::load(data, type, version);
+    _Base<jubatus::core::driver::anomaly>::load(data, type, version);
     idgen = handle->find_max_int_id() + 1;
 }
 
