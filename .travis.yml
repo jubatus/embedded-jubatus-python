@@ -44,6 +44,9 @@ install:
   - if [ "$DIST" == "centos" ]; then
       docker exec test yum -y install jubatus-devel jubatus-core-devel gcc-c++ python-devel epel-release;
       docker exec test yum -y install python-pip;
+      if [ $VERSION -eq 6 ]; then
+        docker exec test pip install --upgrade setuptools;
+      fi;
     fi
   - if [ "$DIST" == "ubuntu" ]; then
       docker exec test apt-get -y update;
