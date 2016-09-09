@@ -78,9 +78,9 @@ class TestClustering(unittest.TestCase):
         self.assertTrue(isinstance(c, list))
         self.assertTrue(isinstance(c[0], WeightedDatum))
 
-        model = x.dump()
+        model = x.save_bytes()
         x = Clustering(CONFIG)
-        x.load(model)
+        x.load_bytes(model)
 
         self.assertEqual(CONFIG, json.loads(x.get_config()))
         self.assertEqual(1, x.get_revision())

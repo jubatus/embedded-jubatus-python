@@ -77,10 +77,10 @@ class TestNearestNeighbor(unittest.TestCase):
             set(['a0', 'a1', 'a2', 'a3', 'b0', 'b1', 'b2', 'b3']),
             set(x.get_all_rows()))
         self.assertEqual(CONFIG, json.loads(x.get_config()))
-        model = x.dump()
+        model = x.save_bytes()
 
         x = NearestNeighbor(CONFIG)
-        x.load(model)
+        x.load_bytes(model)
         self.assertEqual(
             set(['a0', 'a1', 'a2', 'a3', 'b0', 'b1', 'b2', 'b3']),
             set(x.get_all_rows()))

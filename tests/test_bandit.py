@@ -58,9 +58,9 @@ class TestBandit(unittest.TestCase):
         self.assertEqual(3, len(info))
         self.assertTrue(isinstance(info[keys[0]], ArmInfo))
 
-        model = x.dump()
+        model = x.save_bytes()
         x = Bandit(CONFIG)
-        x.load(model)
+        x.load_bytes(model)
         self.assertEqual(CONFIG, json.loads(x.get_config()))
         info = x.get_arm_info(player)
         self.assertEqual(3, len(info))

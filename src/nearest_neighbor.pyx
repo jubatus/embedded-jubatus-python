@@ -16,6 +16,7 @@ cdef class _NearestNeighborWrapper:
             lambda: self._handle.dump(typ, ver),
             lambda x: self._handle.load(x, typ, ver),
             lambda: self._handle.clear(),
+            typ,
         )
 
     def set_row(self, id_, row):

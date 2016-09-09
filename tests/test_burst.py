@@ -75,9 +75,9 @@ class TestBurst(unittest.TestCase):
         self.assertTrue(isinstance(ret['balse'], Window))
         self.assertTrue(isinstance(ret['balse'].batches[0], Batch))
 
-        model = x.dump()
+        model = x.save_bytes()
         x = Burst(CONFIG)
-        x.load(model)
+        x.load_bytes(model)
         self.assertEqual(CONFIG, json.loads(x.get_config()))
         self.assertEqual(1, len(x.get_all_keywords()))
         ret = x.get_result_at('balse', 41)

@@ -41,8 +41,32 @@ class _JubatusBase(object):
             json.loads(config)
         else:
             config = json.dumps(config, sort_keys=True, indent=4)
-        self.get_config, self.dump, self.load, self.clear = (
-            self._init(config.encode('utf8')))
+        (self.get_config, self.save_bytes, self.load_bytes,
+         self.clear, typ) = self._init(config.encode('utf8'))
+        if str != bytes and isinstance(typ, bytes):
+            typ = typ.decode('ascii')
+        self._type = typ
+
+    def _get_model_path(self, id_):
+        host, port = '127.0.0.1', 0
+        path = '/tmp/{host}_{port}_{type}_{id}.jubatus'.format(
+            host=host, port=port, type=self._type, id=id_)
+        return (path, {host: port})
+
+    def load(self, id_):
+        path, ret = self._get_model_path(id_)
+        try:
+            with open(path, 'rb') as f:
+                self.load_bytes(f.read())
+            return True
+        except Exception:
+            return False
+
+    def save(self, id_):
+        path, ret = self._get_model_path(id_)
+        with open(path, 'wb') as f:
+            f.write(self.save_bytes())
+        return ret
 
     def get_status(self):
         raise RuntimeError

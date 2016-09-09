@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 
 from embedded_jubatus import Classifier
@@ -57,7 +58,7 @@ class TestClassifier(unittest.TestCase):
             self.assertEqual(x.get_labels(), {'N': 1, 'Y': 1})
 
         _test_classify(x)
-        model = x.dump()
+        model = x.save_bytes()
 
         x.clear()
         self.assertEqual({}, x.get_labels())
@@ -68,7 +69,7 @@ class TestClassifier(unittest.TestCase):
         self.assertEqual({'N': 0}, x.get_labels())
 
         x = Classifier(CONFIG)
-        x.load(model)
+        x.load_bytes(model)
         _test_classify(x)
         self.assertEqual(CONFIG, json.loads(x.get_config()))
 
@@ -98,3 +99,32 @@ class TestClassifier(unittest.TestCase):
         self.assertTrue(isinstance(y[0][0], EstimateResult))
         self.assertEqual(['Y', 'N'], [list(sorted(
             z, key=lambda x:x.score, reverse=True))[0].label for z in y])
+
+    def test_loadsave(self):
+        x = Classifier(CONFIG)
+        x.train([
+            LabeledDatum('Y', Datum({'x': 'y'})),
+            LabeledDatum('N', Datum({'x': 'n'})),
+        ])
+        path = '/tmp/127.0.0.1_0_classifier_hoge.jubatus'
+
+        def _remove_model():
+            try:
+                os.remove(path)
+            except Exception:
+                pass
+
+        _remove_model()
+        try:
+            self.assertEqual({'127.0.0.1': 0}, x.save('hoge'))
+            self.assertTrue(os.path.isfile(path))
+            x = Classifier(CONFIG)
+            self.assertTrue(x.load('hoge'))
+            y = x.classify([
+                Datum({'x': 'y'}),
+                Datum({'x': 'n'})
+            ])
+            self.assertEqual(['Y', 'N'], [list(sorted(
+                z, key=lambda x:x.score, reverse=True))[0].label for z in y])
+        finally:
+            _remove_model()

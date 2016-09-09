@@ -60,9 +60,9 @@ class TestRegression(unittest.TestCase):
         self.assertTrue(ret[1] >= 0.0 and ret[1] < 1.0)
         self.assertEqual(CONFIG, json.loads(x.get_config()))
 
-        model = x.dump()
+        model = x.save_bytes()
         x = Regression(CONFIG)
-        x.load(model)
+        x.load_bytes(model)
         self.assertEqual(ret, x.estimate([
             Datum({'x': 32.0}),
             Datum({'x': 1.5}),

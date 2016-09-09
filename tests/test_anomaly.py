@@ -54,12 +54,12 @@ class TestAnomaly(unittest.TestCase):
         x.calc_score(Datum({'x': 0.1001}))
         self.assertEqual(set(['0', '1', '2']), set(x.get_all_rows()))
 
-        model = x.dump()
+        model = x.save_bytes()
         x.clear()
         self.assertEqual([], x.get_all_rows())
 
         x = Anomaly(CONFIG)
-        x.load(model)
+        x.load_bytes(model)
         self.assertEqual(set(['0', '1', '2']), set(x.get_all_rows()))
         self.assertEqual(CONFIG, json.loads(x.get_config()))
 

@@ -69,12 +69,12 @@ class TestRecommender(unittest.TestCase):
         r = x.calc_l2norm(Datum({'x': 1, 'y': 5}))
         self.assertTrue(isinstance(r, float))
 
-        model = x.dump()
+        model = x.save_bytes()
         x.clear()
         self.assertEqual([], x.get_all_rows())
         self.assertEqual(CONFIG, json.loads(x.get_config()))
 
         x = Recommender(CONFIG)
-        x.load(model)
+        x.load_bytes(model)
         self.assertTrue(x.get_all_rows())
         _valid_result(x.complete_row_from_id('4'))

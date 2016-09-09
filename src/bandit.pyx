@@ -16,6 +16,7 @@ cdef class _BanditWrapper:
             lambda: self._handle.dump(typ, ver),
             lambda x: self._handle.load(x, typ, ver),
             lambda: self._handle.clear(),
+            typ,
         )
 
     def register_arm(self, arm_id):

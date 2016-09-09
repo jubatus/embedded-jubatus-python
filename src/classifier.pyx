@@ -16,6 +16,7 @@ cdef class _ClassifierWrapper:
             lambda: self._handle.dump(typ, ver),
             lambda x: self._handle.load(x, typ, ver),
             lambda: self._handle.clear(),
+            typ,
         )
 
     def train(self, data):
