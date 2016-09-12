@@ -69,5 +69,14 @@
   - [X] get_arm_info
   - [X] reset
   - [X] load / dump / clear / get_config
-- [ ] [Stat](http://jubat.us/ja/api_stat.html)
+- [X] [Stat](http://jubat.us/ja/api_stat.html)
+  - [X] push
+  - [X] sum
+  - [X] stddev
+  - [X] max
+  - [X] min
+  - [X] entropy
+  - [X] moment
+  - [X] load / dump / clear / get_config
 - [ ] [Graph](http://jubat.us/ja/api_graph.html)
+- [ ] [Weight](http://jubat.us/ja/api_weight.html)

@@ -401,3 +401,49 @@ std::map<std::string, jubatus::core::bandit::arm_info> _Bandit::get_arm_info(con
 bool _Bandit::reset(const std::string& player_id) {
     return handle->reset(player_id);
 }
+
+struct stat_serv_config {
+  int32_t window_size;
+
+  template<typename Ar>
+  void serialize(Ar& ar) {
+    ar & JUBA_MEMBER(window_size);
+  }
+};
+
+_Stat::_Stat(const std::string& config) {
+    using jubatus::core::stat::stat;
+    using jubatus::util::text::json::json;
+    jsonconfig::config conf_root(lexical_cast<json>(config));
+    stat_serv_config conf =jsonconfig::config_cast_check<stat_serv_config>(conf_root);
+    handle.reset(new jubatus::core::driver::stat(new stat(conf.window_size)));
+    this->config.assign(config);
+}
+
+void _Stat::push(const std::string& key, double value) {
+    handle->push(key, value);
+}
+
+double _Stat::sum(const std::string& key) const {
+    return handle->sum(key);
+}
+
+double _Stat::stddev(const std::string& key) const {
+    return handle->stddev(key);
+}
+
+double _Stat::max(const std::string& key) const {
+    return handle->max(key);
+}
+
+double _Stat::min(const std::string& key) const {
+    return handle->min(key);
+}
+
+double _Stat::entropy() const {
+    return handle->entropy();
+}
+
+double _Stat::moment(const std::string& key, int degree, double center) const {
+    return handle->moment(key, degree, center);
+}

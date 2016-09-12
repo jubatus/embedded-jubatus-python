@@ -14,6 +14,7 @@ from _wrapper cimport _Clustering
 from _wrapper cimport _NearestNeighbor
 from _wrapper cimport _Recommender
 from _wrapper cimport _Regression
+from _wrapper cimport _Stat
 from _wrapper cimport arm_info
 from _wrapper cimport classify_result_elem
 from _wrapper cimport keyword_params
@@ -95,6 +96,7 @@ include 'clustering.pyx'
 include 'nearest_neighbor.pyx'
 include 'recommender.pyx'
 include 'regression.pyx'
+include 'stat.pyx'
 
 class Anomaly(_JubatusBase, _AnomalyWrapper):
     pass
@@ -118,4 +120,7 @@ class Recommender(_JubatusBase, _RecommenderWrapper):
     pass
 
 class Regression(_JubatusBase, _RegressionWrapper):
+    pass
+
+class Stat(_JubatusBase, _StatWrapper):
     pass

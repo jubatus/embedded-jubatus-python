@@ -117,6 +117,20 @@ cdef extern from '_wrapper.h':
         string get_config()
         void clear()
 
+    cdef cppclass _Stat:
+        _Stat(const string& config) except +
+        void push(const string& key, double value)
+        double sum(const string& key)
+        double stddev(const string& key)
+        double max(const string& key)
+        double min(const string& key)
+        double entropy()
+        double moment(const string& key, int degree, double center)
+        string dump(const string& type, uint64_t ver)
+        void load(const string& data, const string& type, uint64_t ver)
+        string get_config()
+        void clear()
+
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter':
     cdef cppclass datum:
         vector[pair[string, string]] string_values_

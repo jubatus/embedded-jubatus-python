@@ -12,6 +12,7 @@
 #include <jubatus/core/driver/nearest_neighbor.hpp>
 #include <jubatus/core/driver/recommender.hpp>
 #include <jubatus/core/driver/regression.hpp>
+#include <jubatus/core/driver/stat.hpp>
 
 using jubatus::util::lang::shared_ptr;
 using jubatus::core::fv_converter::datum;
@@ -192,4 +193,17 @@ public:
     bool register_reward(const std::string& player_id, const std::string& arm_id, double reward);
     std::map<std::string, jubatus::core::bandit::arm_info> get_arm_info(const std::string& player_id) const;
     bool reset(const std::string& player_id);
+};
+
+class _Stat : public _Base<jubatus::core::driver::stat> {
+public:
+    _Stat(const std::string& config);
+    ~_Stat() {}
+    void push(const std::string& key, double value);
+    double sum(const std::string& key) const;
+    double stddev(const std::string& key) const;
+    double max(const std::string& key) const;
+    double min(const std::string& key) const;
+    double entropy() const;
+    double moment(const std::string& key, int degree, double center) const;
 };
