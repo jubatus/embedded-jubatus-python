@@ -67,3 +67,106 @@ cdef class _ClassifierWrapper:
 
     def delete_label(self, target_label):
         return self._handle.delete_label(target_label.encode('utf8'))
+
+    def fit(self, X, y):
+        self._handle.clear()
+        return self.partial_fit(X, y)
+
+    def partial_fit(self, X, y):
+        import numpy as np
+        if len(X.shape) != 2 or len(y.shape) != 1 or X.shape[0] != y.shape[0]:
+            raise ValueError('invalid shape')
+        cdef int i
+        cdef rows = X.shape[0]
+        cdef datum d
+        cdef string l
+        cdef int is_ndarray = isinstance(X, np.ndarray)
+        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
+        if not (is_ndarray or is_csr):
+            raise ValueError
+        for i in range(rows):
+            if is_ndarray:
+                ndarray_to_datum(X, i, d)
+            else:
+                csr_to_datum(X.data, X.indices, X.indptr, i, d)
+            l = lexical_cast[string, int](y[i])
+            self._handle.train(l, d)
+        return self
+
+    def decision_function(self, X):
+        import numpy as np
+        if len(X.shape) != 2:
+            raise ValueError('invalid X.shape')
+        cdef int is_ndarray = isinstance(X, np.ndarray)
+        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
+        if not (is_ndarray or is_csr):
+            raise ValueError
+        cdef int i, j, k
+        cdef double score
+        cdef datum d
+        cdef vector[classify_result_elem] r
+        cdef int rows = X.shape[0]
+        IF NUMPY:
+            cdef c_np.ndarray[c_np.float64_t] ret = None
+        ELSE:
+            ret = None
+        for i in range(rows):
+            if is_ndarray:
+                ndarray_to_datum(X, i, d)
+            else:
+                csr_to_datum(X.data, X.indices, X.indptr, i, d)
+            r = self._handle.classify(d)
+            if r.size() == 0:
+                return np.zeros(rows)
+            if r.size() == 2:
+                if ret is None:
+                    ret = np.zeros(rows)
+                if r[0].score < r[1].score:
+                    j = lexical_cast[int, string](r[1].label)
+                    score = r[1].score
+                else:
+                    j = lexical_cast[int, string](r[0].label)
+                    score = r[0].score
+                if j == 0:
+                    ret[i] = -score
+                else:
+                    ret[i] = score
+            else:
+                if ret is None:
+                    ret = np.zeros((rows, r.size()))
+                for j in range(r.size()):
+                    k = lexical_cast[int, string](r[j].label)
+                    ret[i,k] = r[j].score
+        return ret
+
+    def predict(self, X):
+        import numpy as np
+        if len(X.shape) != 2:
+            raise ValueError('invalid X.shape')
+        cdef int is_ndarray = isinstance(X, np.ndarray)
+        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
+        if not (is_ndarray or is_csr):
+            raise ValueError
+        cdef int i, j, max_j
+        cdef double max_score
+        cdef datum d
+        cdef vector[classify_result_elem] r
+        cdef int rows = X.shape[0]
+        IF NUMPY:
+            cdef c_np.ndarray[c_np.int32_t, ndim=1] ret = np.zeros(rows, dtype=np.int32)
+        ELSE:
+            ret = np.zeros(rows, dtype=np.int32)
+        for i in range(rows):
+            if is_ndarray:
+                ndarray_to_datum(X, i, d)
+            else:
+                csr_to_datum(X.data, X.indices, X.indptr, i, d)
+            r = self._handle.classify(d)
+            if r.size() == 0:
+                break
+            max_j, max_score = 0, r[0].score
+            for j in range(1, r.size()):
+                if r[j].score > max_score:
+                    max_j, max_score = i, r[j].score
+            ret[i] = lexical_cast[int, string](r[max_j].label)
+        return ret

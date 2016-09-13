@@ -50,11 +50,22 @@ install:
     fi
   - if [ "$DIST" == "ubuntu" ]; then
       docker exec test apt-get -y update;
-      docker exec test apt-get  --force-yes -y install jubatus python-dev python-pip g++;
+      docker exec test apt-get --force-yes -y install jubatus python-dev python-pip g++;
     fi
   - docker exec test pip install jubatus cython
 
 script:
+  - if [ "$DIST" == "centos" ]; then
+      docker exec -t test bash -ic "python ./setup.py build_ext -i && python ./setup.py test";
+    elif [ "$DIST" == "ubuntu" ]; then
+      docker exec -t test bash -ic "source /opt/jubatus/profile; python ./setup.py build_ext -i && python ./setup.py test";
+    fi
+  - if [ "$DIST" == "centos" ]; then
+      docker exec test yum -y install numpy scipy;
+    elif [ "$DIST" == "ubuntu" ]; then
+      docker exec test apt-get --force-yes -y install python-numpy python-scipy;
+    fi
+  - docker exec test rm -rf build
   - if [ "$DIST" == "centos" ]; then
       docker exec -t test bash -ic "python ./setup.py build_ext -i && python ./setup.py test";
     elif [ "$DIST" == "ubuntu" ]; then

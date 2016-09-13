@@ -156,3 +156,6 @@ cdef extern from 'jubatus/core/bandit/arm_info.hpp' namespace 'jubatus::core::ba
     cdef cppclass arm_info:
         int trial_count
         double weight
+
+cdef extern from 'jubatus/util/lang/cast.h' namespace 'jubatus::util::lang':
+    cdef T lexical_cast[T, S](const S& arg)

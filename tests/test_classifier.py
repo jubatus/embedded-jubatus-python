@@ -2,10 +2,26 @@ import json
 import os
 import unittest
 
+try:
+    from unittest import skipIf
+except Exception:
+    def skipIf(condition, reason):
+        def dummy(*args, **kwargs):
+            pass
+        if condition:
+            return lambda _: dummy
+        return lambda x: x
+
 from embedded_jubatus import Classifier
 from jubatus.classifier.types import EstimateResult
 from jubatus.classifier.types import LabeledDatum
 from jubatus.common import Datum
+
+try:
+    import numpy as np
+    NUMPY = True
+except Exception:
+    NUMPY = False
 
 
 CONFIG = {
@@ -128,3 +144,53 @@ class TestClassifier(unittest.TestCase):
                 z, key=lambda x:x.score, reverse=True))[0].label for z in y])
         finally:
             _remove_model()
+
+    @skipIf(not NUMPY, 'numpy cannot import')
+    def test_numpy(self):
+        x = Classifier(CONFIG)
+        tdata = np.array([
+            [1, 0, 1],
+            [0, 1, 1],
+        ], dtype='f8')
+        ttargets = np.array([1, 0])
+        x.partial_fit(tdata, ttargets)
+        y = x.predict(np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+        ], dtype='f8'))
+        self.assertEqual(1, y[0])
+        self.assertEqual(0, y[1])
+        y = x.decision_function(np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+        ], dtype='f8'))
+        self.assertEqual(2, len(y))
+        self.assertTrue(not isinstance(y[0], (list, tuple, np.ndarray)))
+        self.assertTrue(y[0] > 0)
+        self.assertTrue(y[1] < 0)
+
+    @skipIf(not NUMPY, 'numpy cannot import')
+    def test_sparse(self):
+        from scipy.sparse import csr_matrix
+
+        x = Classifier(CONFIG)
+        tdata = csr_matrix(np.array([
+            [1, 0, 1],
+            [0, 1, 1],
+        ], dtype='f8'))
+        ttargets = np.array([1, 0])
+        x.partial_fit(tdata, ttargets)
+        y = x.predict(csr_matrix(np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+        ], dtype='f8')))
+        self.assertEqual(1, y[0])
+        self.assertEqual(0, y[1])
+        y = x.decision_function(csr_matrix(np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+        ], dtype='f8')))
+        self.assertEqual(2, len(y))
+        self.assertTrue(not isinstance(y[0], (list, tuple, np.ndarray)))
+        self.assertTrue(y[0] > 0)
+        self.assertTrue(y[1] < 0)

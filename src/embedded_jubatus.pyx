@@ -6,6 +6,10 @@ from libcpp.map cimport map
 from cython.operator cimport dereference
 from cython.operator cimport preincrement
 
+include 'defs.pyx'
+IF NUMPY:
+    cimport numpy as c_np
+
 from _wrapper cimport _Anomaly
 from _wrapper cimport _Bandit
 from _wrapper cimport _Burst
@@ -17,8 +21,10 @@ from _wrapper cimport _Regression
 from _wrapper cimport _Stat
 from _wrapper cimport arm_info
 from _wrapper cimport classify_result_elem
+from _wrapper cimport datum
 from _wrapper cimport keyword_params
 from _wrapper cimport keyword_with_params
+from _wrapper cimport lexical_cast
 
 from jubatus.anomaly.types import IdWithScore as AnomalyIdWithScore
 from jubatus.bandit.types import ArmInfo
@@ -29,6 +35,7 @@ from jubatus.burst.types import Window
 from jubatus.classifier.types import EstimateResult
 from jubatus.classifier.types import LabeledDatum
 from jubatus.clustering.types import WeightedDatum
+from jubatus.common.datum import Datum
 from jubatus.nearest_neighbor.types import IdWithScore as NNIdWithScore
 from jubatus.recommender.types import IdWithScore as RecommenderIdWithScore
 from jubatus.regression.types import ScoredDatum
