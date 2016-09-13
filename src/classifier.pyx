@@ -76,21 +76,22 @@ cdef class _ClassifierWrapper:
         import numpy as np
         if len(X.shape) != 2 or len(y.shape) != 1 or X.shape[0] != y.shape[0]:
             raise ValueError('invalid shape')
-        cdef int i
+        cdef int i, j
         cdef rows = X.shape[0]
         cdef datum d
-        cdef string l
+        cdef vector[string] cache
         cdef int is_ndarray = isinstance(X, np.ndarray)
         cdef int is_csr = (type(X).__name__ == 'csr_matrix')
         if not (is_ndarray or is_csr):
             raise ValueError
         for i in range(rows):
             if is_ndarray:
-                ndarray_to_datum(X, i, d)
+                ndarray_to_datum(X, i, d, cache)
             else:
-                csr_to_datum(X.data, X.indices, X.indptr, i, d)
-            l = lexical_cast[string, int](y[i])
-            self._handle.train(l, d)
+                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+            for j in range(cache.size(), y[i] + 1):
+                cache.push_back(lexical_cast[string, int](j))
+            self._handle.train(<string>cache[y[i]], d)
         return self
 
     def decision_function(self, X):
@@ -104,6 +105,7 @@ cdef class _ClassifierWrapper:
         cdef int i, j, k
         cdef double score
         cdef datum d
+        cdef vector[string] cache
         cdef vector[classify_result_elem] r
         cdef int rows = X.shape[0]
         IF NUMPY:
@@ -112,9 +114,9 @@ cdef class _ClassifierWrapper:
             ret = None
         for i in range(rows):
             if is_ndarray:
-                ndarray_to_datum(X, i, d)
+                ndarray_to_datum(X, i, d, cache)
             else:
-                csr_to_datum(X.data, X.indices, X.indptr, i, d)
+                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
             r = self._handle.classify(d)
             if r.size() == 0:
                 return np.zeros(rows)
@@ -150,6 +152,7 @@ cdef class _ClassifierWrapper:
         cdef int i, j, max_j
         cdef double max_score
         cdef datum d
+        cdef vector[string] cache
         cdef vector[classify_result_elem] r
         cdef int rows = X.shape[0]
         IF NUMPY:
@@ -158,9 +161,9 @@ cdef class _ClassifierWrapper:
             ret = np.zeros(rows, dtype=np.int32)
         for i in range(rows):
             if is_ndarray:
-                ndarray_to_datum(X, i, d)
+                ndarray_to_datum(X, i, d, cache)
             else:
-                csr_to_datum(X.data, X.indices, X.indptr, i, d)
+                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
             r = self._handle.classify(d)
             if r.size() == 0:
                 break

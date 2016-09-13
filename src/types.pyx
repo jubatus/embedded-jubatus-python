@@ -31,20 +31,22 @@ cdef datum_native2py(datum& d):
 
 IF NUMPY:
 
-    cdef ndarray_to_datum(c_np.ndarray[c_np.float64_t, ndim=2] X, int i, datum& d):
+    cdef ndarray_to_datum(c_np.ndarray[c_np.float64_t, ndim=2] X, int i, datum& d, vector[string]& cache):
         d.string_values_.clear()
         d.num_values_.clear()
         d.binary_values_.clear()
 
         cdef int j
+        for j in range(cache.size(), X.shape[1]):
+            cache.push_back(lexical_cast[string, int](j))
         for j in range(X.shape[1]):
             if X[i, j] != 0.0:
-                d.num_values_.push_back(<tuple>(lexical_cast[string, int](j), X[i, j]))
+                d.num_values_.push_back(<tuple>(<string>cache[j], X[i, j]))
 
     cdef csr_to_datum(c_np.ndarray[c_np.float64_t, ndim=1] data,
                       c_np.ndarray[c_np.int32_t, ndim=1] indices,
                       c_np.ndarray[c_np.int32_t, ndim=1] indptr,
-                      int i, datum& d):
+                      int i, datum& d, vector[string]& cache):
         d.string_values_.clear()
         d.num_values_.clear()
         d.binary_values_.clear()
@@ -52,15 +54,15 @@ IF NUMPY:
         cdef int j = indptr[i]
         cdef int k = indptr[i + 1]
         cdef int c, l
+        for l in range(cache.size(), indices[k - 1] + 1):
+            cache.push_back(lexical_cast[string, int](l))
         for l in range(j, k):
-            d.num_values_.push_back(<tuple>(
-                lexical_cast[string, int](indices[l]),
-                data[l]))
+            d.num_values_.push_back(<tuple>(<string>cache[indices[l]], data[l]))
 
 ELSE:
 
-    cdef ndarray_to_datum(X, int i, datum& d):
+    cdef ndarray_to_datum(X, int i, datum& d, vector[string]& cache):
         raise RuntimeError
 
-    cdef csr_to_datum(data, indices, indptr, int i, datum& d):
+    cdef csr_to_datum(data, indices, indptr, int i, datum& d, vector[string]& cache):
         raise RuntimeError
