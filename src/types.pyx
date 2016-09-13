@@ -38,7 +38,8 @@ IF NUMPY:
 
         cdef int j
         for j in range(X.shape[1]):
-            d.num_values_.push_back(<tuple>(lexical_cast[string, int](j), X[i, j]))
+            if X[i, j] != 0.0:
+                d.num_values_.push_back(<tuple>(lexical_cast[string, int](j), X[i, j]))
 
     cdef csr_to_datum(c_np.ndarray[c_np.float64_t, ndim=1] data,
                       c_np.ndarray[c_np.int32_t, ndim=1] indices,
