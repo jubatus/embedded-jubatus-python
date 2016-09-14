@@ -194,3 +194,32 @@ class TestClassifier(unittest.TestCase):
         self.assertTrue(not isinstance(y[0], (list, tuple, np.ndarray)))
         self.assertTrue(y[0] > 0)
         self.assertTrue(y[1] < 0)
+
+    @skipIf(not NUMPY, 'numpy cannot import')
+    def test_multilabel(self):
+        x = Classifier(CONFIG)
+        tdata = np.array([
+            [0, 1, 0],
+            [0, 0, 1],
+            [1, 0, 0],
+        ], dtype='f8')
+        ttargets = np.array([1, 2, 0])
+        x.partial_fit(tdata, ttargets)
+        y = x.predict(np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+        ], dtype='f8'))
+        self.assertTrue(isinstance(y, np.ndarray))
+        self.assertEqual(y.dtype, np.int32)
+        self.assertTrue(np.equal(y, np.array([0, 1, 2])).all())
+        y = x.decision_function(np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+            [0, 0, 1],
+        ], dtype='f8'))
+        self.assertTrue(isinstance(y, np.ndarray))
+        self.assertEqual((3, 3), y.shape)
+        self.assertTrue(y[0][0] > y[0][1] and y[0][0] > y[0][2])
+        self.assertTrue(y[1][1] > y[1][0] and y[1][1] > y[1][2])
+        self.assertTrue(y[2][2] > y[2][0] and y[2][2] > y[2][1])

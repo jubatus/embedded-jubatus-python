@@ -117,10 +117,7 @@ cdef class _ClassifierWrapper:
         cdef vector[string] cache
         cdef vector[classify_result_elem] r
         cdef int rows = X.shape[0]
-        IF NUMPY:
-            cdef c_np.ndarray[c_np.float64_t] ret = None
-        ELSE:
-            ret = None
+        ret = None
         for i in range(rows):
             if is_ndarray:
                 ndarray_to_datum(X, i, d, cache)
@@ -179,6 +176,6 @@ cdef class _ClassifierWrapper:
             max_j, max_score = 0, r[0].score
             for j in range(1, r.size()):
                 if r[j].score > max_score:
-                    max_j, max_score = i, r[j].score
+                    max_j, max_score = j, r[j].score
             ret[i] = lexical_cast[int, string](r[max_j].label)
         return ret
