@@ -3,15 +3,15 @@ cdef datum_py2native(pd, datum& d):
     for k, v in pd.string_values:
         k = k.encode('utf8')
         v = v.encode('utf8')
-        d.string_values_.push_back(<tuple>(k, v))
+        d.string_values_.push_back(pair[string, string](k, v))
     d.num_values_.clear()
     for k, v in pd.num_values:
         k = k.encode('utf8')
-        d.num_values_.push_back(<tuple>(k, v))
+        d.num_values_.push_back(pair[string, double](k, v))
     d.binary_values_.clear()
     for k, v in pd.binary_values:
         k = k.encode('utf8')
-        d.binary_values_.push_back(<tuple>(k, v))
+        d.binary_values_.push_back(pair[string, string](k, v))
 
 cdef datum_native2py(datum& d):
     ret = Datum()
@@ -41,7 +41,7 @@ IF NUMPY:
             cache.push_back(lexical_cast[string, int](j))
         for j in range(X.shape[1]):
             if X[i, j] != 0.0:
-                d.num_values_.push_back(<tuple>(<string>cache[j], X[i, j]))
+                d.num_values_.push_back(pair[string, double](cache[j], X[i, j]))
 
     cdef csr_to_datum(c_np.ndarray[c_np.float64_t, ndim=1] data,
                       c_np.ndarray[c_np.int32_t, ndim=1] indices,
@@ -57,7 +57,7 @@ IF NUMPY:
         for l in range(cache.size(), indices[k - 1] + 1):
             cache.push_back(lexical_cast[string, int](l))
         for l in range(j, k):
-            d.num_values_.push_back(<tuple>(<string>cache[indices[l]], data[l]))
+            d.num_values_.push_back(pair[string, double](cache[indices[l]], data[l]))
 
 ELSE:
 

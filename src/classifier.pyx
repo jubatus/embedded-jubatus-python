@@ -91,7 +91,7 @@ cdef class _ClassifierWrapper:
                 csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
             for j in range(cache.size(), y[i] + 1):
                 cache.push_back(lexical_cast[string, int](j))
-            self._handle.train(<string>cache[y[i]], d)
+            self._handle.train(cache[y[i]], d)
         return self
 
     def decision_function(self, X):
