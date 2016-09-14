@@ -10,6 +10,7 @@ cdef class _ClassifierWrapper:
 
     def _init(self, config):
         self._handle = new _Classifier(config)
+        self.classes_ = None
         typ, ver = b'classifier', 1
         return (
             lambda: self._handle.get_config().decode('utf8'),
@@ -70,13 +71,14 @@ cdef class _ClassifierWrapper:
 
     def fit(self, X, y):
         self._handle.clear()
+        self.classes_ = None
         return self.partial_fit(X, y)
 
     def partial_fit(self, X, y):
         import numpy as np
         if len(X.shape) != 2 or len(y.shape) != 1 or X.shape[0] != y.shape[0]:
             raise ValueError('invalid shape')
-        cdef int i, j
+        cdef int i, j, max_label
         cdef rows = X.shape[0]
         cdef datum d
         cdef vector[string] cache
@@ -84,6 +86,9 @@ cdef class _ClassifierWrapper:
         cdef int is_csr = (type(X).__name__ == 'csr_matrix')
         if not (is_ndarray or is_csr):
             raise ValueError
+        if self.classes_ is None:
+            self.classes_ = []
+        max_label = len(self.classes_) - 1
         for i in range(rows):
             if is_ndarray:
                 ndarray_to_datum(X, i, d, cache)
@@ -91,7 +96,11 @@ cdef class _ClassifierWrapper:
                 csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
             for j in range(cache.size(), y[i] + 1):
                 cache.push_back(lexical_cast[string, int](j))
+            if max_label < y[i]:
+                max_label = y[i]
             self._handle.train(cache[y[i]], d)
+        for j in range(len(self.classes_), max_label + 1):
+            self.classes_.append(j)
         return self
 
     def decision_function(self, X):
