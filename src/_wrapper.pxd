@@ -5,7 +5,7 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.map cimport map
 
-cdef extern from '_wrapper.h':
+cdef extern from '_wrapper.h' nogil:
     cdef cppclass _Classifier:
         _Classifier(const string& config) except +
         void train(const string& config, const datum& d)
@@ -131,18 +131,18 @@ cdef extern from '_wrapper.h':
         string get_config()
         void clear()
 
-cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter':
+cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter' nogil:
     cdef cppclass datum:
         vector[pair[string, string]] string_values_
         vector[pair[string, double]] num_values_
         vector[pair[string, string]] binary_values_
 
-cdef extern from 'jubatus/core/classifier/classifier_type.hpp' namespace 'jubatus::core::classifier':
+cdef extern from 'jubatus/core/classifier/classifier_type.hpp' namespace 'jubatus::core::classifier' nogil:
     cdef cppclass classify_result_elem:
         string label
         float score
 
-cdef extern from 'jubatus/core/burst/burst.hpp' namespace 'jubatus::core::burst':
+cdef extern from 'jubatus/core/burst/burst.hpp' namespace 'jubatus::core::burst' nogil:
     cdef cppclass keyword_params:
         double scaling_param
         double gamma
@@ -152,10 +152,10 @@ cdef extern from 'jubatus/core/burst/burst.hpp' namespace 'jubatus::core::burst'
         double scaling_param
         double gamma
 
-cdef extern from 'jubatus/core/bandit/arm_info.hpp' namespace 'jubatus::core::bandit':
+cdef extern from 'jubatus/core/bandit/arm_info.hpp' namespace 'jubatus::core::bandit' nogil:
     cdef cppclass arm_info:
         int trial_count
         double weight
 
-cdef extern from 'jubatus/util/lang/cast.h' namespace 'jubatus::util::lang':
+cdef extern from 'jubatus/util/lang/cast.h' namespace 'jubatus::util::lang' nogil:
     cdef T lexical_cast[T, S](const S& arg)
