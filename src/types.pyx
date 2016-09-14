@@ -53,10 +53,10 @@ IF NUMPY:
 
         cdef int j = indptr[i]
         cdef int k = indptr[i + 1]
-        cdef int c, l
-        for l in range(cache.size(), indices[k - 1] + 1):
-            cache.push_back(lexical_cast[string, int](l))
+        cdef int l, m
         for l in range(j, k):
+            for m in range(cache.size(), indices[l] + 1):
+                cache.push_back(lexical_cast[string, int](m))
             d.num_values_.push_back(pair[string, double](cache[indices[l]], data[l]))
 
 ELSE:
