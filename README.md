@@ -79,4 +79,7 @@
   - [X] moment
   - [X] load / dump / clear / get_config
 - [ ] [Graph](http://jubat.us/ja/api_graph.html)
-- [ ] [Weight](http://jubat.us/ja/api_weight.html)
+- [X] [Weight](http://jubat.us/ja/api_weight.html)
+  - [X] update
+  - [X] calc_weight
+  - [X] load / dump / clear / get_config
