@@ -94,7 +94,7 @@ _Regression::_Regression(const std::string& config) {
     converter_config fvconv_config;
     parse_config(config, method, params, fvconv_config);
     shared_ptr<storage_base> model = storage_factory::create_storage("local");
-    handle.reset(new regression(model,
+    handle.reset(new regression(
         regression_factory::create_regression(method, params, model),
         make_fv_converter(fvconv_config, NULL)));
     this->config.assign(config);
