@@ -66,3 +66,27 @@ ELSE:
 
     cdef csr_to_datum(data, indices, indptr, int i, datum& d, vector[string]& cache):
         raise RuntimeError
+
+cdef props_py2native(p, prop_t& out):
+    for k, v in p.items():
+        out.insert(pair[string, string](k.encode('utf8'), v.encode('utf8')))
+
+cdef props_native2py(prop_t& p):
+    r = {}
+    for it in p:
+        r[it.first.decode('utf8')] = it.second.decode('utf8')
+    return r
+
+cdef edges_native2py(const vector[edge_id_t]& edges):
+    ret = []
+    for i in range(edges.size()):
+        ret.append(edges[i])
+    return ret
+
+cdef preset_query_py2native(query, preset_query& q):
+    for x in query.edge_query:
+        q.edge_query.push_back(pair[string, string](
+            x.from_id.encode('ascii'), x.to_id.encode('ascii')))
+    for x in query.node_query:
+        q.node_query.push_back(pair[string, string](
+            x.from_id.encode('ascii'), x.to_id.encode('ascii')))
