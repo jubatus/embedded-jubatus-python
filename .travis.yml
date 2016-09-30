@@ -61,7 +61,7 @@ install:
       fi;
       docker exec test git clone -b develop https://github.com/jubatus/jubatus_core.git;
       if [ "$DIST" == "centos" ]; then
-        docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install";
+        docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install && ldconfig";
       elif [ "$DIST" == "ubuntu" ]; then
         docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/opt/jubatus --regexp-library=none && ./waf build && ./waf install";
       fi
