@@ -40,7 +40,6 @@ CONFIG = {
 class TestClustering(unittest.TestCase):
     def test_invalid_configs(self):
         self.assertRaises(TypeError, Clustering)
-        self.assertRaises(ValueError, Clustering, 'hoge')
         self.assertRaises(ValueError, Clustering, {})
         self.assertRaises(TypeError, Clustering, {'method': 'hoge'})
         self.assertRaises(RuntimeError, Clustering,

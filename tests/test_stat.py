@@ -9,7 +9,6 @@ from embedded_jubatus import Stat
 class TestStat(unittest.TestCase):
     def test_invalid_configs(self):
         self.assertRaises(TypeError, Stat)
-        self.assertRaises(ValueError, Stat, 'hoge')
         self.assertRaises(RuntimeError, Stat, {})
         self.assertRaises(RuntimeError, Stat, {'window_size': 'hoge'})
 

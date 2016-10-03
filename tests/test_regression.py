@@ -33,7 +33,6 @@ CONFIG = {
 class TestRegression(unittest.TestCase):
     def test_invalid_config(self):
         self.assertRaises(TypeError, Regression)
-        self.assertRaises(ValueError, Regression, 'hoge')
         self.assertRaises(ValueError, Regression, {})
         self.assertRaises(TypeError, Regression, {'method': 'hoge'})
         self.assertRaises(RuntimeError, Regression,
