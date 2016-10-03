@@ -5,6 +5,8 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.map cimport map
 
+ctypedef vector[pair[string, float]] sfv_t
+
 cdef extern from '_wrapper.h' nogil:
     cdef cppclass _Classifier:
         _Classifier(const string& config) except +
@@ -126,6 +128,15 @@ cdef extern from '_wrapper.h' nogil:
         double min(const string& key)
         double entropy()
         double moment(const string& key, int degree, double center)
+        string dump(const string& type, uint64_t ver)
+        void load(const string& data, const string& type, uint64_t ver)
+        string get_config()
+        void clear()
+
+    cdef cppclass _Weight:
+        _Weight(const string& config) except +
+        sfv_t update(const datum& d)
+        sfv_t calc_weight(const datum& d)
         string dump(const string& type, uint64_t ver)
         void load(const string& data, const string& type, uint64_t ver)
         string get_config()

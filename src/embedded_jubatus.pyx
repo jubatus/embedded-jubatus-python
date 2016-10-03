@@ -19,12 +19,14 @@ from _wrapper cimport _NearestNeighbor
 from _wrapper cimport _Recommender
 from _wrapper cimport _Regression
 from _wrapper cimport _Stat
+from _wrapper cimport _Weight
 from _wrapper cimport arm_info
 from _wrapper cimport classify_result_elem
 from _wrapper cimport datum
 from _wrapper cimport keyword_params
 from _wrapper cimport keyword_with_params
 from _wrapper cimport lexical_cast
+from _wrapper cimport sfv_t
 
 from jubatus.anomaly.types import IdWithScore as AnomalyIdWithScore
 from jubatus.bandit.types import ArmInfo
@@ -39,6 +41,7 @@ from jubatus.common.datum import Datum
 from jubatus.nearest_neighbor.types import IdWithScore as NNIdWithScore
 from jubatus.recommender.types import IdWithScore as RecommenderIdWithScore
 from jubatus.regression.types import ScoredDatum
+from jubatus.weight.types import Feature
 
 
 class _JubatusBase(object):
@@ -104,6 +107,7 @@ include 'nearest_neighbor.pyx'
 include 'recommender.pyx'
 include 'regression.pyx'
 include 'stat.pyx'
+include 'weight.pyx'
 
 class Anomaly(_JubatusBase, _AnomalyWrapper):
     pass
@@ -130,4 +134,7 @@ class Regression(_JubatusBase, _RegressionWrapper):
     pass
 
 class Stat(_JubatusBase, _StatWrapper):
+    pass
+
+class Weight(_JubatusBase, _WeightWrapper):
     pass

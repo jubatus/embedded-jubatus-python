@@ -20,31 +20,24 @@ using jubatus::core::storage::storage_base;
 using jubatus::core::storage::storage_factory;
 using jubatus::util::lang::lexical_cast;
 
-void parse_config(const std::string& config, std::string& method,
-                  jsonconfig::config& params) {
+void parse_config(const std::string& config, std::string *method,
+                  jsonconfig::config *params, converter_config *fvconv_config) {
     using jubatus::util::text::json::json;
     using jubatus::util::text::json::json_string;
     using jubatus::util::text::json::from_json;
     json config_json = lexical_cast<json>(config);
-    json_string *method_value = (json_string*)config_json["method"].get();
-    if (!method_value || method_value->type() != json::String)
-        throw std::invalid_argument("invalid config (method)");
-    method.assign(method_value->get());
-    params = jsonconfig::config(config_json["parameter"]);
-}
-
-void parse_config(const std::string& config, std::string& method,
-                  jsonconfig::config& params, converter_config& fvconv_config) {
-    using jubatus::util::text::json::json;
-    using jubatus::util::text::json::json_string;
-    using jubatus::util::text::json::from_json;
-    json config_json = lexical_cast<json>(config);
-    json_string *method_value = (json_string*)config_json["method"].get();
-    if (!method_value || method_value->type() != json::String)
-        throw std::invalid_argument("invalid config (method)");
-    method.assign(method_value->get());
-    from_json(config_json["converter"], fvconv_config);
-    params = jsonconfig::config(config_json["parameter"]);
+    if (method) {
+        json_string *method_value = (json_string*)config_json["method"].get();
+        if (!method_value || method_value->type() != json::String)
+            throw std::invalid_argument("invalid config (method)");
+        method->assign(method_value->get());
+    }
+    if (params) {
+        *params = jsonconfig::config(config_json["parameter"]);
+    }
+    if (fvconv_config) {
+        from_json(config_json["converter"], *fvconv_config);
+    }
 }
 
 _Classifier::_Classifier(const std::string& config) {
@@ -53,7 +46,7 @@ _Classifier::_Classifier(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     handle.reset(new classifier(classifier_factory::create_classifier(
         method, params, storage_factory::create_storage("local")),
         make_fv_converter(fvconv_config, NULL)));
@@ -92,7 +85,7 @@ _Regression::_Regression(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     shared_ptr<storage_base> model = storage_factory::create_storage("local");
     handle.reset(new regression(
         regression_factory::create_regression(method, params, model),
@@ -114,7 +107,7 @@ _Recommender::_Recommender(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     std::string my_id;
     handle.reset(new recommender(
         recommender_factory::create_recommender(method, params, my_id),
@@ -169,7 +162,7 @@ _NearestNeighbor::_NearestNeighbor(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     std::string my_id;
     shared_ptr<column_table> table(new column_table);
     handle.reset(new nearest_neighbor(
@@ -208,7 +201,7 @@ _Anomaly::_Anomaly(const std::string& config) : idgen(0) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     std::string my_id;
     handle.reset(new anomaly(
         anomaly_factory::create_anomaly(method, params, my_id),
@@ -252,7 +245,7 @@ _Clustering::_Clustering(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     std::string my_id;
     clustering_config cluster_conf = jsonconfig::config_cast_check<clustering_config>(params);
     handle.reset(new jubatus::core::driver::clustering(
@@ -291,7 +284,7 @@ _Burst::_Burst(const std::string& config) {
     using jubatus::core::burst::burst_options;
     std::string method;
     jsonconfig::config params;
-    parse_config(config, method, params);
+    parse_config(config, &method, &params, NULL);
     burst_options opts = jsonconfig::config_cast_check<burst_options>(params);
     handle.reset(new jubatus::core::driver::burst(new burst(opts)));
     this->config.assign(config);
@@ -367,7 +360,7 @@ _Bandit::_Bandit(const std::string& config) {
     using jubatus::core::driver::bandit;
     std::string method;
     jsonconfig::config params;
-    parse_config(config, method, params);
+    parse_config(config, &method, &params, NULL);
     handle.reset(new bandit(method, params));
     this->config.assign(config);
 }
@@ -446,4 +439,20 @@ double _Stat::entropy() const {
 
 double _Stat::moment(const std::string& key, int degree, double center) const {
     return handle->moment(key, degree, center);
+}
+
+_Weight::_Weight(const std::string& config) {
+    using jubatus::core::driver::weight;
+    converter_config fvconv_config;
+    parse_config(config, NULL, NULL, &fvconv_config);
+    handle.reset(new weight(make_fv_converter(fvconv_config, NULL)));
+    this->config.assign(config);
+}
+
+sfv_t _Weight::update(const datum& d) {
+    return handle->update(d);
+}
+
+sfv_t _Weight::calc_weight(const datum& d) const {
+    return handle->calc_weight(d);
 }

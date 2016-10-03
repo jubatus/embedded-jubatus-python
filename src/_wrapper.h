@@ -13,8 +13,10 @@
 #include <jubatus/core/driver/recommender.hpp>
 #include <jubatus/core/driver/regression.hpp>
 #include <jubatus/core/driver/stat.hpp>
+#include <jubatus/core/driver/weight.hpp>
 
 using jubatus::util::lang::shared_ptr;
+using jubatus::core::common::sfv_t;
 using jubatus::core::fv_converter::datum;
 using jubatus::core::classifier::classify_result;
 using jubatus::core::clustering::cluster_unit;
@@ -206,4 +208,12 @@ public:
     double min(const std::string& key) const;
     double entropy() const;
     double moment(const std::string& key, int degree, double center) const;
+};
+
+class _Weight : public _Base<jubatus::core::driver::weight> {
+public:
+    _Weight(const std::string& config);
+    ~_Weight() {}
+    sfv_t update(const datum&);
+    sfv_t calc_weight(const datum&) const;
 };
