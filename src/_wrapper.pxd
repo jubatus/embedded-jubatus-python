@@ -6,6 +6,9 @@ from libcpp.pair cimport pair
 from libcpp.map cimport map
 
 ctypedef vector[pair[string, float]] sfv_t
+ctypedef map[string, string] prop_t
+ctypedef uint64_t edge_id_t
+ctypedef uint64_t node_id_t
 
 cdef extern from '_wrapper.h' nogil:
     cdef cppclass _Classifier:
@@ -142,6 +145,40 @@ cdef extern from '_wrapper.h' nogil:
         string get_config()
         void clear()
 
+    cdef cppclass _Graph:
+        _Graph(const string& config) except +
+        string create_node()
+        bool remove_node(const string& node_id)
+        bool update_node(const string& node_id,
+                         const prop_t& properties)
+        edge_id_t create_edge(const string& src,
+                              const string& target,
+                              const prop_t& properties)
+        bool update_edge(edge_id_t edge_id,
+                         const prop_t& properties)
+        void remove_edge(edge_id_t edge_id)
+
+        double get_centrality(const string& node_id,
+                              int centrality_type,
+                              const preset_query& q)
+        void add_centrality_query(const preset_query& q)
+        void add_shortest_path_query(const preset_query& q)
+        void remove_centrality_query(const preset_query& q)
+        void remove_shortest_path_query(const preset_query& q)
+        vector[node_id_t] get_shortest_path(const string& src,
+                                            const string& target,
+                                            uint64_t max_hop,
+                                            const preset_query& q)
+
+        void update_index()
+        node_info get_node(const string& node_id)
+        edge_info get_edge(edge_id_t eid)
+
+        string dump(const string& type, uint64_t ver)
+        void load(const string& data, const string& type, uint64_t ver)
+        string get_config()
+        void clear()
+
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter' nogil:
     cdef cppclass datum:
         vector[pair[string, string]] string_values_
@@ -170,3 +207,18 @@ cdef extern from 'jubatus/core/bandit/arm_info.hpp' namespace 'jubatus::core::ba
 
 cdef extern from 'jubatus/util/lang/cast.h' namespace 'jubatus::util::lang' nogil:
     cdef T lexical_cast[T, S](const S& arg)
+
+cdef extern from 'jubatus/core/graph/graph_type.hpp' namespace 'jubatus::core::graph' nogil:
+    cdef cppclass node_info:
+        prop_t property
+        vector[edge_id_t] in_edges
+        vector[edge_id_t] out_edges
+
+    cdef cppclass edge_info:
+        prop_t p
+        node_id_t src
+        node_id_t tgt
+
+    cdef cppclass preset_query:
+        vector[pair[string, string]] edge_query
+        vector[pair[string, string]] node_query

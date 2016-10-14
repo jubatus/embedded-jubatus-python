@@ -10,6 +10,7 @@
 #include <jubatus/core/nearest_neighbor/nearest_neighbor_factory.hpp>
 #include <jubatus/core/recommender/recommender_factory.hpp>
 #include <jubatus/core/regression/regression_factory.hpp>
+#include <jubatus/core/graph/graph_factory.hpp>
 
 #include "_wrapper.h"
 
@@ -455,4 +456,111 @@ sfv_t _Weight::update(const datum& d) {
 
 sfv_t _Weight::calc_weight(const datum& d) const {
     return handle->calc_weight(d);
+}
+
+struct graph_serv_config {
+    std::string method;
+    jsonconfig::config parameter;
+
+    template<typename Ar>
+    void serialize(Ar& ar) {
+        ar & JUBA_MEMBER(method) & JUBA_MEMBER(parameter);
+    }
+};
+
+_Graph::_Graph(const std::string& config) {
+    using jubatus::core::driver::graph;
+    using jubatus::core::graph::graph_factory;
+    using jubatus::util::text::json::json;
+    jsonconfig::config conf_root(lexical_cast<json>(config));
+    graph_serv_config conf =jsonconfig::config_cast_check<graph_serv_config>(conf_root);
+    handle.reset(new graph(graph_factory::create_graph(conf.method, conf.parameter)));
+    this->config.assign(config);
+    id_ = 0;
+}
+
+std::string _Graph::create_node() {
+    uint64_t nid = generate_id();
+    handle->create_node(nid);
+    return lexical_cast<std::string>(nid);
+}
+
+bool _Graph::remove_node(const std::string& node_id) {
+    node_id_t nid = lexical_cast<node_id_t>(node_id);
+    handle->remove_node(nid);
+    return true;
+}
+
+bool _Graph::update_node(const std::string& node_id,
+                         const property_t& property) {
+    handle->update_node(lexical_cast<node_id_t>(node_id), property);
+    return true;
+}
+
+edge_id_t _Graph::create_edge(const std::string& src,
+                              const std::string& target,
+                              const property_t& property) {
+    edge_id_t eid = generate_id();
+    handle->create_edge(eid, lexical_cast<node_id_t>(src), lexical_cast<node_id_t>(target), property);
+    return eid;
+}
+
+bool _Graph::update_edge(edge_id_t edge_id,
+                         const property_t& property) {
+    handle->update_edge(edge_id, property);
+    return true;
+}
+
+void _Graph::remove_edge(edge_id_t edge_id) {
+    handle->remove_edge(edge_id);
+}
+
+double _Graph::get_centrality(const std::string& node_id,
+                              int centrality_type,
+                              const jubatus::core::graph::preset_query& q) const {
+    node_id_t nid = lexical_cast<node_id_t>(node_id);
+    if (centrality_type == 0) {
+        return handle->get_centrality(nid, jubatus::core::graph::EIGENSCORE, q);
+    } else {
+        std::stringstream msg;
+        msg << "unknown centrality type: " << centrality_type;
+        throw jubatus::core::common::exception::runtime_error(msg.str());
+    }
+}
+
+void _Graph::add_centrality_query(const jubatus::core::graph::preset_query& q) {
+    handle->add_centrality_query(q);
+}
+
+void _Graph::add_shortest_path_query(const jubatus::core::graph::preset_query& q) {
+    handle->add_shortest_path_query(q);
+}
+
+void _Graph::remove_centrality_query(const jubatus::core::graph::preset_query& q) {
+    handle->remove_centrality_query(q);
+}
+
+void _Graph::remove_shortest_path_query(const jubatus::core::graph::preset_query& q) {
+    handle->remove_shortest_path_query(q);
+}
+
+std::vector<node_id_t> _Graph::get_shortest_path(const std::string& src,
+                                                 const std::string& target,
+                                                 uint64_t max_hop,
+                                                 const jubatus::core::graph::preset_query &q) const {
+    return handle->get_shortest_path(lexical_cast<node_id_t>(src),
+                                     lexical_cast<node_id_t>(target),
+                                     max_hop, q);
+}
+
+void _Graph::update_index() {
+    handle->update_index();
+}
+
+jubatus::core::graph::node_info _Graph::get_node(const std::string& node_id) const {
+    return handle->get_node(lexical_cast<node_id_t>(node_id));
+}
+
+jubatus::core::graph::edge_info _Graph::get_edge(edge_id_t eid) const {
+    return handle->get_edge(eid);
 }

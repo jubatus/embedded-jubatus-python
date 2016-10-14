@@ -20,6 +20,7 @@ from _wrapper cimport _Recommender
 from _wrapper cimport _Regression
 from _wrapper cimport _Stat
 from _wrapper cimport _Weight
+from _wrapper cimport _Graph
 from _wrapper cimport arm_info
 from _wrapper cimport classify_result_elem
 from _wrapper cimport datum
@@ -27,6 +28,12 @@ from _wrapper cimport keyword_params
 from _wrapper cimport keyword_with_params
 from _wrapper cimport lexical_cast
 from _wrapper cimport sfv_t
+from _wrapper cimport prop_t
+from _wrapper cimport node_id_t
+from _wrapper cimport edge_id_t
+from _wrapper cimport node_info
+from _wrapper cimport edge_info
+from _wrapper cimport preset_query
 
 from jubatus.anomaly.types import IdWithScore as AnomalyIdWithScore
 from jubatus.bandit.types import ArmInfo
@@ -42,6 +49,11 @@ from jubatus.nearest_neighbor.types import IdWithScore as NNIdWithScore
 from jubatus.recommender.types import IdWithScore as RecommenderIdWithScore
 from jubatus.regression.types import ScoredDatum
 from jubatus.weight.types import Feature
+from jubatus.graph.types import Edge
+from jubatus.graph.types import Node
+from jubatus.graph.types import PresetQuery
+from jubatus.graph.types import Query
+from jubatus.graph.types import ShortestPathQuery
 
 
 class _JubatusBase(object):
@@ -110,6 +122,7 @@ include 'recommender.pyx'
 include 'regression.pyx'
 include 'stat.pyx'
 include 'weight.pyx'
+include 'graph.pyx'
 
 class Anomaly(_JubatusBase, _AnomalyWrapper):
     pass
@@ -139,4 +152,7 @@ class Stat(_JubatusBase, _StatWrapper):
     pass
 
 class Weight(_JubatusBase, _WeightWrapper):
+    pass
+
+class Graph(_JubatusBase, _GraphWrapper):
     pass
