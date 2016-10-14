@@ -1,5 +1,6 @@
 import json
 import os
+import tempfile
 import unittest
 
 try:
@@ -48,7 +49,6 @@ CONFIG = {
 class TestClassifier(unittest.TestCase):
     def test_invalid_configs(self):
         self.assertRaises(TypeError, Classifier)
-        self.assertRaises(ValueError, Classifier, 'hoge')
         self.assertRaises(ValueError, Classifier, {})
         self.assertRaises(TypeError, Classifier, {'method': 'hoge'})
         self.assertRaises(RuntimeError, Classifier,
@@ -223,3 +223,17 @@ class TestClassifier(unittest.TestCase):
         self.assertTrue(y[0][0] > y[0][1] and y[0][0] > y[0][2])
         self.assertTrue(y[1][1] > y[1][0] and y[1][1] > y[1][2])
         self.assertTrue(y[2][2] > y[2][0] and y[2][2] > y[2][1])
+
+    def test_load_config_from_file(self):
+        with tempfile.NamedTemporaryFile() as fd:
+            fd.write(json.dumps(CONFIG).encode('utf8'))
+            fd.flush()
+
+            x = Classifier(fd.name)
+            self.assertEqual(CONFIG, json.loads(x.get_config()))
+
+    def test_load_invalid_config_from_file(self):
+        with tempfile.NamedTemporaryFile() as fd:
+            fd.write(b'{"hoge')
+            fd.flush()
+            self.assertRaises(ValueError, Classifier, fd.name)

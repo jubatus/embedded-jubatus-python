@@ -48,6 +48,8 @@ class _JubatusBase(object):
     def __init__(self, config):
         import json
         if isinstance(config, str):
+            # loads config from file
+            config = open(config, 'rb').read().decode('utf8')
             # JSON parse test
             json.loads(config)
         else:

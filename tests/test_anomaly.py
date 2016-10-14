@@ -37,7 +37,6 @@ CONFIG = {
 class TestAnomaly(unittest.TestCase):
     def test_invalid_configs(self):
         self.assertRaises(TypeError, Anomaly)
-        self.assertRaises(ValueError, Anomaly, 'hoge')
         self.assertRaises(ValueError, Anomaly, {})
         self.assertRaises(TypeError, Anomaly, {'method': 'hoge'})
         self.assertRaises(RuntimeError, Anomaly,

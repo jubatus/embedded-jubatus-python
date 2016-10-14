@@ -23,7 +23,6 @@ CONFIG = {
 class TestBurst(unittest.TestCase):
     def test_invalid_configs(self):
         self.assertRaises(TypeError, Burst)
-        self.assertRaises(ValueError, Burst, 'hoge')
         self.assertRaises(ValueError, Burst, {})
         self.assertRaises(RuntimeError, Burst, {'method': 'hoge'})
         invalid_config = dict(CONFIG)
