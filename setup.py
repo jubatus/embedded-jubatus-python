@@ -4,6 +4,9 @@ from Cython.Build import cythonize
 from setuptools import Extension
 from setuptools import setup
 
+def read(name):
+    with open(os.path.join(os.path.dirname(__file__), name)) as f:
+        return f.read()
 
 py_defines = []
 include_dirs = []
@@ -23,7 +26,23 @@ if defs != old_defs:
 
 setup(
     name='embedded_jubatus',
-    version='0.1',
+    version=read('VERSION').rstrip(),
+    description='embedded-jubatus-python is a Python bridge to call Jubatus Core library.',
+    long_description=read('README.rst'),
+    author='PFN & NTT',
+    author_email='jubatus-team@googlegroups.com',
+    url='http://jubat.us',
+    download_url='http://pypi.python.org/pypi/embedded_jubatus',
+    license='LGPLv2',
+    classifiers=[
+        'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering :: Information Analysis',
+        'License :: OSI Approved :: GNU Lesser General Public License v2 (LGPLv2)',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+    ],
     ext_modules=cythonize([
         Extension(
             'embedded_jubatus',
