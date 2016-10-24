@@ -7,7 +7,7 @@ from jubatus.regression.types import ScoredDatum
 
 
 CONFIG = {
-    "method": "PA",
+    "method": "PA1",
     "parameter": {
         "sensitivity": 0.1,
         "regularization_weight": 3.402823e+38

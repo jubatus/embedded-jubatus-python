@@ -22,6 +22,9 @@ using jubatus::core::fv_converter::datum;
 using jubatus::core::classifier::classify_result;
 using jubatus::core::clustering::cluster_unit;
 using jubatus::core::clustering::cluster_set;
+using jubatus::core::clustering::index_cluster_set;
+using jubatus::core::clustering::index_cluster_unit;
+using jubatus::core::clustering::indexed_point;
 using jubatus::core::graph::node_id_t;
 using jubatus::core::graph::edge_id_t;
 typedef jubatus::core::graph::property property_t;
@@ -155,12 +158,14 @@ class _Clustering : public _Base<jubatus::core::driver::clustering> {
 public:
     _Clustering(const std::string& config);
     ~_Clustering() {}
-    void push(const std::vector<datum>& points);
+    void push(const std::vector<indexed_point>& points);
     size_t get_revision() const;
     cluster_set get_core_members() const;
     std::vector<datum> get_k_center() const;
     datum get_nearest_center(const datum& d) const;
     cluster_unit get_nearest_members(const datum& d) const;
+    index_cluster_set get_core_members_light() const;
+    index_cluster_unit get_nearest_members_light(const datum& d) const;
 };
 
 class _Burst : public _Base<jubatus::core::driver::burst> {

@@ -34,6 +34,7 @@ from _wrapper cimport edge_id_t
 from _wrapper cimport node_info
 from _wrapper cimport edge_info
 from _wrapper cimport preset_query
+from _wrapper cimport indexed_point
 
 from jubatus.anomaly.types import IdWithScore as AnomalyIdWithScore
 from jubatus.bandit.types import ArmInfo
@@ -44,6 +45,7 @@ from jubatus.burst.types import Window
 from jubatus.classifier.types import EstimateResult
 from jubatus.classifier.types import LabeledDatum
 from jubatus.clustering.types import WeightedDatum
+from jubatus.clustering.types import WeightedIndex
 from jubatus.common.datum import Datum
 from jubatus.nearest_neighbor.types import IdWithScore as NNIdWithScore
 from jubatus.recommender.types import IdWithScore as RecommenderIdWithScore

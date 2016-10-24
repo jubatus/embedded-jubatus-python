@@ -21,10 +21,13 @@ cdef class _ClusteringWrapper:
 
     def push(self, points):
         cdef datum d
-        cdef vector[datum] v
+        cdef vector[indexed_point] v
+        cdef indexed_point ip
         for p in points:
-            datum_py2native(p, d)
-            v.push_back(d)
+            datum_py2native(p.point, d)
+            ip.id = p.id.encode('utf8')
+            ip.point = d
+            v.push_back(ip)
         self._handle.push(v)
         return True
 
@@ -62,3 +65,24 @@ cdef class _ClusteringWrapper:
             WeightedDatum(r[i].first, datum_native2py(r[i].second))
             for i in range(r.size())
         ]
+
+    def get_core_members_light(self):
+        cdef vector[vector[pair[double, string]]] r
+        r = self._handle.get_core_members_light()
+        ret = []
+        for c in r:
+            tmp = []
+            for m in c:
+                tmp.append(WeightedIndex(m.first, m.second))
+            ret.append(tmp)
+        return ret
+
+    def get_nearest_members_light(self, point):
+        cdef vector[pair[double, string]] r
+        cdef datum d
+        datum_py2native(point, d)
+        r = self._handle.get_nearest_members_light(d)
+        ret = []
+        for m in r:
+            ret.append(WeightedIndex(m.first, m.second))
+        return ret
