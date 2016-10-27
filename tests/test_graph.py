@@ -62,3 +62,4 @@ class TestGraph(unittest.TestCase):
         self.assertEqual(CONFIG, json.loads(g.get_config()))
         self.assertEqual([n0, n1], g.get_shortest_path(
             ShortestPathQuery(n0, n1, 100, PresetQuery([], []))))
+        self.assertEqual('4', g.create_node())

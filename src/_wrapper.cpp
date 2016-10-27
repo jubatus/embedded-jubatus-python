@@ -511,6 +511,11 @@ _Graph::_Graph(const std::string& config) {
     id_ = 0;
 }
 
+void _Graph::load(const std::string& data, const std::string& type, uint64_t version) {
+    _Base<jubatus::core::driver::graph>::load(data, type, version);
+    id_ = handle->find_max_int_id() + 1;
+}
+
 std::string _Graph::create_node() {
     uint64_t nid = generate_id();
     handle->create_node(nid);

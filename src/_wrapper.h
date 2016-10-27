@@ -234,6 +234,7 @@ class _Graph : public _Base<jubatus::core::driver::graph> {
 public:
     _Graph(const std::string& config);
     ~_Graph() {}
+    void load(const std::string& data, const std::string& type, uint64_t version);
 
     std::string create_node();
     bool remove_node(const std::string& node_id);
