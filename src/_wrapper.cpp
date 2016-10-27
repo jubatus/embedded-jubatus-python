@@ -6,7 +6,7 @@
 #include <jubatus/core/storage/column_table.hpp>
 #include <jubatus/core/anomaly/anomaly_factory.hpp>
 #include <jubatus/core/classifier/classifier_factory.hpp>
-#include <jubatus/core/clustering/clustering.hpp>
+#include <jubatus/core/clustering/clustering_factory.hpp>
 #include <jubatus/core/nearest_neighbor/nearest_neighbor_factory.hpp>
 #include <jubatus/core/recommender/recommender_factory.hpp>
 #include <jubatus/core/regression/regression_factory.hpp>
@@ -39,6 +39,27 @@ void parse_config(const std::string& config, std::string *method,
     if (fvconv_config) {
         from_json(config_json["converter"], *fvconv_config);
     }
+}
+
+void parse_clustering_config(const std::string& config, std::string *method,
+                             jsonconfig::config *params, converter_config *fvconv_config,
+                             std::string *compressor_method,
+                             jsonconfig::config *compressor_params) {
+    using jubatus::util::text::json::json;
+    using jubatus::util::text::json::json_string;
+    using jubatus::util::text::json::from_json;
+    json config_json = lexical_cast<json>(config);
+    json_string *method_value = (json_string*)config_json["method"].get();
+    if (!method_value || method_value->type() != json::String)
+        throw std::invalid_argument("invalid config (method)");
+    method->assign(method_value->get());
+    *params = jsonconfig::config(config_json["parameter"]);
+    from_json(config_json["converter"], *fvconv_config);
+    method_value = (json_string*)config_json["compressor_method"].get();
+    if (!method_value || method_value->type() != json::String)
+        throw std::invalid_argument("invalid config (compressor_method)");
+    compressor_method->assign(method_value->get());
+    *compressor_params = jsonconfig::config(config_json["compressor_parameter"]);
 }
 
 _Classifier::_Classifier(const std::string& config) {
@@ -242,21 +263,24 @@ std::vector<std::string> _Anomaly::get_all_rows() const {
 
 _Clustering::_Clustering(const std::string& config) {
     using jubatus::core::clustering::clustering;
-    using jubatus::core::clustering::clustering_config;
-    std::string method;
-    jsonconfig::config params;
+    using jubatus::core::clustering::clustering_factory;
+
+    std::string method, compressor_method, my_id;
+    jsonconfig::config params, compressor_params;
     converter_config fvconv_config;
-    parse_config(config, &method, &params, &fvconv_config);
-    std::string my_id;
-    clustering_config cluster_conf = jsonconfig::config_cast_check<clustering_config>(params);
+    parse_clustering_config(config, &method, &params, &fvconv_config,
+                            &compressor_method, &compressor_params);
     handle.reset(new jubatus::core::driver::clustering(
-        shared_ptr<clustering>(
-            new clustering(my_id, method, cluster_conf)),
+        clustering_factory::create(my_id,
+                                   method,
+                                   compressor_method,
+                                   params,
+                                   compressor_params),
         make_fv_converter(fvconv_config, NULL)));
     this->config.assign(config);
 }
 
-void _Clustering::push(const std::vector<datum>& points) {
+void _Clustering::push(const std::vector<indexed_point>& points) {
     handle->push(points);
 }
 
@@ -278,6 +302,14 @@ datum _Clustering::get_nearest_center(const datum& d) const {
 
 cluster_unit _Clustering::get_nearest_members(const datum& d) const {
     return handle->get_nearest_members(d);
+}
+
+index_cluster_set _Clustering::get_core_members_light() const {
+    return handle->get_core_members_light();
+}
+
+index_cluster_unit _Clustering::get_nearest_members_light(const datum& d) const {
+    return handle->get_nearest_members_light(d);
 }
 
 _Burst::_Burst(const std::string& config) {

@@ -3,6 +3,8 @@ import unittest
 
 from embedded_jubatus import Clustering
 from jubatus.clustering.types import WeightedDatum
+from jubatus.clustering.types import WeightedIndex
+from jubatus.clustering.types import IndexedPoint
 from jubatus.common import Datum
 
 
@@ -10,14 +12,11 @@ CONFIG = {
     'method': 'kmeans',
     'parameter': {
         'k': 2,
-        'bucket_size': 6,
-        'bucket_length': 2,
-        'compressed_bucket_size': 5,
-        'compressor_method': 'compressive_kmeans',
-        'bicriteria_base_size': 1,
-        'forgetting_factor': 0.0,
-        'forgetting_threshold': 0.5,
         'seed': 0,
+    },
+    'compressor_method': 'simple',
+    'compressor_parameter': {
+        'bucket_size': 6,
     },
     'converter': {
         'num_filter_types': {},
@@ -40,10 +39,17 @@ CONFIG = {
 class TestClustering(unittest.TestCase):
     def test_invalid_configs(self):
         self.assertRaises(TypeError, Clustering)
-        self.assertRaises(ValueError, Clustering, {})
-        self.assertRaises(TypeError, Clustering, {'method': 'hoge'})
-        self.assertRaises(RuntimeError, Clustering,
+        self.assertRaises(Exception, Clustering, {})
+        self.assertRaises(Exception, Clustering, {'method': 'hoge'})
+        self.assertRaises(Exception, Clustering,
                           {'method': 'hoge', 'converter': {}})
+        self.assertRaises(Exception, Clustering,
+                          {'method': 'hoge', 'converter': {},
+                           'compressor_method': 'hoge'})
+        self.assertRaises(RuntimeError, Clustering,
+                          {'method': 'hoge', 'converter': {},
+                           'compressor_method': 'hoge',
+                           'compressor_parameter': {}})
         invalid_config = dict(CONFIG)
         invalid_config['method'] = 'hoge'
         self.assertRaises(RuntimeError, Clustering, invalid_config)
@@ -52,12 +58,12 @@ class TestClustering(unittest.TestCase):
         x = Clustering(CONFIG)
         self.assertEqual(0, x.get_revision())
         self.assertTrue(x.push([
-            Datum({'x': 1.0}),
-            Datum({'x': 0.9}),
-            Datum({'x': 1.1}),
-            Datum({'x': 5.0}),
-            Datum({'x': 4.9}),
-            Datum({'x': 5.1}),
+            IndexedPoint('a', Datum({'x': 1.0})),
+            IndexedPoint('b', Datum({'x': 0.9})),
+            IndexedPoint('c', Datum({'x': 1.1})),
+            IndexedPoint('d', Datum({'x': 5.0})),
+            IndexedPoint('e', Datum({'x': 4.9})),
+            IndexedPoint('f', Datum({'x': 5.1})),
         ]))
         self.assertEqual(1, x.get_revision())
         centers = x.get_k_center()
@@ -76,6 +82,15 @@ class TestClustering(unittest.TestCase):
         c = x.get_nearest_members(Datum({'x': 1.05}))
         self.assertTrue(isinstance(c, list))
         self.assertTrue(isinstance(c[0], WeightedDatum))
+
+        c = x.get_core_members_light()
+        self.assertTrue(isinstance(c, list))
+        self.assertTrue(isinstance(c[0], list))
+        self.assertTrue(isinstance(c[0][0], WeightedIndex))
+
+        c = x.get_nearest_members_light(Datum({'x': 1.05}))
+        self.assertTrue(isinstance(c, list))
+        self.assertTrue(isinstance(c[0], WeightedIndex))
 
         model = x.save_bytes()
         x = Clustering(CONFIG)

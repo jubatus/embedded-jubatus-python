@@ -77,12 +77,14 @@ cdef extern from '_wrapper.h' nogil:
 
     cdef cppclass _Clustering:
         _Clustering(const string& config) except +
-        void push(const vector[datum]& points)
+        void push(const vector[indexed_point]& points)
         size_t get_revision()
         vector[vector[pair[double, datum]]] get_core_members()
         vector[datum] get_k_center()
         datum get_nearest_center(const datum& d)
         vector[pair[double, datum]] get_nearest_members(const datum& d)
+        vector[vector[pair[double, string]]] get_core_members_light()
+        vector[pair[double, string]] get_nearest_members_light(const datum& d)
         string dump(const string& type, uint64_t ver)
         void load(const string& data, const string& type, uint64_t ver)
         string get_config()
@@ -222,3 +224,8 @@ cdef extern from 'jubatus/core/graph/graph_type.hpp' namespace 'jubatus::core::g
     cdef cppclass preset_query:
         vector[pair[string, string]] edge_query
         vector[pair[string, string]] node_query
+
+cdef extern from 'jubatus/core/clustering/types.hpp' namespace 'jubatus::core::clustering' nogil:
+    cdef cppclass indexed_point:
+        string id
+        datum point
