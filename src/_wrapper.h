@@ -13,12 +13,21 @@
 #include <jubatus/core/driver/recommender.hpp>
 #include <jubatus/core/driver/regression.hpp>
 #include <jubatus/core/driver/stat.hpp>
+#include <jubatus/core/driver/weight.hpp>
+#include <jubatus/core/driver/graph.hpp>
 
 using jubatus::util::lang::shared_ptr;
+using jubatus::core::common::sfv_t;
 using jubatus::core::fv_converter::datum;
 using jubatus::core::classifier::classify_result;
 using jubatus::core::clustering::cluster_unit;
 using jubatus::core::clustering::cluster_set;
+using jubatus::core::clustering::index_cluster_set;
+using jubatus::core::clustering::index_cluster_unit;
+using jubatus::core::clustering::indexed_point;
+using jubatus::core::graph::node_id_t;
+using jubatus::core::graph::edge_id_t;
+typedef jubatus::core::graph::property property_t;
 
 std::string pack_model(const std::string& type,
                        const std::string& config,
@@ -149,12 +158,14 @@ class _Clustering : public _Base<jubatus::core::driver::clustering> {
 public:
     _Clustering(const std::string& config);
     ~_Clustering() {}
-    void push(const std::vector<datum>& points);
+    void push(const std::vector<indexed_point>& points);
     size_t get_revision() const;
     cluster_set get_core_members() const;
     std::vector<datum> get_k_center() const;
     datum get_nearest_center(const datum& d) const;
     cluster_unit get_nearest_members(const datum& d) const;
+    index_cluster_set get_core_members_light() const;
+    index_cluster_unit get_nearest_members_light(const datum& d) const;
 };
 
 class _Burst : public _Base<jubatus::core::driver::burst> {
@@ -206,4 +217,49 @@ public:
     double min(const std::string& key) const;
     double entropy() const;
     double moment(const std::string& key, int degree, double center) const;
+};
+
+class _Weight : public _Base<jubatus::core::driver::weight> {
+public:
+    _Weight(const std::string& config);
+    ~_Weight() {}
+    sfv_t update(const datum&);
+    sfv_t calc_weight(const datum&) const;
+};
+
+class _Graph : public _Base<jubatus::core::driver::graph> {
+    uint64_t id_;
+
+    inline uint64_t generate_id() { return id_++; }
+public:
+    _Graph(const std::string& config);
+    ~_Graph() {}
+    void load(const std::string& data, const std::string& type, uint64_t version);
+
+    std::string create_node();
+    bool remove_node(const std::string& node_id);
+    bool update_node(const std::string& node_id,
+                     const property_t& property);
+    edge_id_t create_edge(const std::string& src,
+                          const std::string& target,
+                          const property_t& property);
+    bool update_edge(edge_id_t edge_id,
+                     const property_t& property);
+    void remove_edge(edge_id_t edge_id);
+
+    double get_centrality(const std::string& node_id,
+                          int centrality_type,
+                          const jubatus::core::graph::preset_query& q) const;
+    void add_centrality_query(const jubatus::core::graph::preset_query& q);
+    void add_shortest_path_query(const jubatus::core::graph::preset_query& q);
+    void remove_centrality_query(const jubatus::core::graph::preset_query& q);
+    void remove_shortest_path_query(const jubatus::core::graph::preset_query& q);
+    std::vector<node_id_t> get_shortest_path(const std::string& src,
+                                             const std::string& target,
+                                             uint64_t max_hop,
+                                             const jubatus::core::graph::preset_query &q) const;
+
+    void update_index();
+    jubatus::core::graph::node_info get_node(const std::string& node_id) const;
+    jubatus::core::graph::edge_info get_edge(edge_id_t eid) const;
 };

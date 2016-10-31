@@ -6,10 +6,11 @@
 #include <jubatus/core/storage/column_table.hpp>
 #include <jubatus/core/anomaly/anomaly_factory.hpp>
 #include <jubatus/core/classifier/classifier_factory.hpp>
-#include <jubatus/core/clustering/clustering.hpp>
+#include <jubatus/core/clustering/clustering_factory.hpp>
 #include <jubatus/core/nearest_neighbor/nearest_neighbor_factory.hpp>
 #include <jubatus/core/recommender/recommender_factory.hpp>
 #include <jubatus/core/regression/regression_factory.hpp>
+#include <jubatus/core/graph/graph_factory.hpp>
 
 #include "_wrapper.h"
 
@@ -20,21 +21,30 @@ using jubatus::core::storage::storage_base;
 using jubatus::core::storage::storage_factory;
 using jubatus::util::lang::lexical_cast;
 
-void parse_config(const std::string& config, std::string& method,
-                  jsonconfig::config& params) {
+void parse_config(const std::string& config, std::string *method,
+                  jsonconfig::config *params, converter_config *fvconv_config) {
     using jubatus::util::text::json::json;
     using jubatus::util::text::json::json_string;
     using jubatus::util::text::json::from_json;
     json config_json = lexical_cast<json>(config);
-    json_string *method_value = (json_string*)config_json["method"].get();
-    if (!method_value || method_value->type() != json::String)
-        throw std::invalid_argument("invalid config (method)");
-    method.assign(method_value->get());
-    params = jsonconfig::config(config_json["parameter"]);
+    if (method) {
+        json_string *method_value = (json_string*)config_json["method"].get();
+        if (!method_value || method_value->type() != json::String)
+            throw std::invalid_argument("invalid config (method)");
+        method->assign(method_value->get());
+    }
+    if (params) {
+        *params = jsonconfig::config(config_json["parameter"]);
+    }
+    if (fvconv_config) {
+        from_json(config_json["converter"], *fvconv_config);
+    }
 }
 
-void parse_config(const std::string& config, std::string& method,
-                  jsonconfig::config& params, converter_config& fvconv_config) {
+void parse_clustering_config(const std::string& config, std::string *method,
+                             jsonconfig::config *params, converter_config *fvconv_config,
+                             std::string *compressor_method,
+                             jsonconfig::config *compressor_params) {
     using jubatus::util::text::json::json;
     using jubatus::util::text::json::json_string;
     using jubatus::util::text::json::from_json;
@@ -42,9 +52,14 @@ void parse_config(const std::string& config, std::string& method,
     json_string *method_value = (json_string*)config_json["method"].get();
     if (!method_value || method_value->type() != json::String)
         throw std::invalid_argument("invalid config (method)");
-    method.assign(method_value->get());
-    from_json(config_json["converter"], fvconv_config);
-    params = jsonconfig::config(config_json["parameter"]);
+    method->assign(method_value->get());
+    *params = jsonconfig::config(config_json["parameter"]);
+    from_json(config_json["converter"], *fvconv_config);
+    method_value = (json_string*)config_json["compressor_method"].get();
+    if (!method_value || method_value->type() != json::String)
+        throw std::invalid_argument("invalid config (compressor_method)");
+    compressor_method->assign(method_value->get());
+    *compressor_params = jsonconfig::config(config_json["compressor_parameter"]);
 }
 
 _Classifier::_Classifier(const std::string& config) {
@@ -53,7 +68,7 @@ _Classifier::_Classifier(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     handle.reset(new classifier(classifier_factory::create_classifier(
         method, params, storage_factory::create_storage("local")),
         make_fv_converter(fvconv_config, NULL)));
@@ -92,7 +107,7 @@ _Regression::_Regression(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     shared_ptr<storage_base> model = storage_factory::create_storage("local");
     handle.reset(new regression(
         regression_factory::create_regression(method, params, model),
@@ -114,7 +129,7 @@ _Recommender::_Recommender(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     std::string my_id;
     handle.reset(new recommender(
         recommender_factory::create_recommender(method, params, my_id),
@@ -169,7 +184,7 @@ _NearestNeighbor::_NearestNeighbor(const std::string& config) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     std::string my_id;
     shared_ptr<column_table> table(new column_table);
     handle.reset(new nearest_neighbor(
@@ -208,7 +223,7 @@ _Anomaly::_Anomaly(const std::string& config) : idgen(0) {
     std::string method;
     jsonconfig::config params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
+    parse_config(config, &method, &params, &fvconv_config);
     std::string my_id;
     handle.reset(new anomaly(
         anomaly_factory::create_anomaly(method, params, my_id),
@@ -248,21 +263,24 @@ std::vector<std::string> _Anomaly::get_all_rows() const {
 
 _Clustering::_Clustering(const std::string& config) {
     using jubatus::core::clustering::clustering;
-    using jubatus::core::clustering::clustering_config;
-    std::string method;
-    jsonconfig::config params;
+    using jubatus::core::clustering::clustering_factory;
+
+    std::string method, compressor_method, my_id;
+    jsonconfig::config params, compressor_params;
     converter_config fvconv_config;
-    parse_config(config, method, params, fvconv_config);
-    std::string my_id;
-    clustering_config cluster_conf = jsonconfig::config_cast_check<clustering_config>(params);
+    parse_clustering_config(config, &method, &params, &fvconv_config,
+                            &compressor_method, &compressor_params);
     handle.reset(new jubatus::core::driver::clustering(
-        shared_ptr<clustering>(
-            new clustering(my_id, method, cluster_conf)),
+        clustering_factory::create(my_id,
+                                   method,
+                                   compressor_method,
+                                   params,
+                                   compressor_params),
         make_fv_converter(fvconv_config, NULL)));
     this->config.assign(config);
 }
 
-void _Clustering::push(const std::vector<datum>& points) {
+void _Clustering::push(const std::vector<indexed_point>& points) {
     handle->push(points);
 }
 
@@ -286,12 +304,20 @@ cluster_unit _Clustering::get_nearest_members(const datum& d) const {
     return handle->get_nearest_members(d);
 }
 
+index_cluster_set _Clustering::get_core_members_light() const {
+    return handle->get_core_members_light();
+}
+
+index_cluster_unit _Clustering::get_nearest_members_light(const datum& d) const {
+    return handle->get_nearest_members_light(d);
+}
+
 _Burst::_Burst(const std::string& config) {
     using jubatus::core::burst::burst;
     using jubatus::core::burst::burst_options;
     std::string method;
     jsonconfig::config params;
-    parse_config(config, method, params);
+    parse_config(config, &method, &params, NULL);
     burst_options opts = jsonconfig::config_cast_check<burst_options>(params);
     handle.reset(new jubatus::core::driver::burst(new burst(opts)));
     this->config.assign(config);
@@ -367,7 +393,7 @@ _Bandit::_Bandit(const std::string& config) {
     using jubatus::core::driver::bandit;
     std::string method;
     jsonconfig::config params;
-    parse_config(config, method, params);
+    parse_config(config, &method, &params, NULL);
     handle.reset(new bandit(method, params));
     this->config.assign(config);
 }
@@ -446,4 +472,132 @@ double _Stat::entropy() const {
 
 double _Stat::moment(const std::string& key, int degree, double center) const {
     return handle->moment(key, degree, center);
+}
+
+_Weight::_Weight(const std::string& config) {
+    using jubatus::core::driver::weight;
+    converter_config fvconv_config;
+    parse_config(config, NULL, NULL, &fvconv_config);
+    handle.reset(new weight(make_fv_converter(fvconv_config, NULL)));
+    this->config.assign(config);
+}
+
+sfv_t _Weight::update(const datum& d) {
+    return handle->update(d);
+}
+
+sfv_t _Weight::calc_weight(const datum& d) const {
+    return handle->calc_weight(d);
+}
+
+struct graph_serv_config {
+    std::string method;
+    jsonconfig::config parameter;
+
+    template<typename Ar>
+    void serialize(Ar& ar) {
+        ar & JUBA_MEMBER(method) & JUBA_MEMBER(parameter);
+    }
+};
+
+_Graph::_Graph(const std::string& config) {
+    using jubatus::core::driver::graph;
+    using jubatus::core::graph::graph_factory;
+    using jubatus::util::text::json::json;
+    jsonconfig::config conf_root(lexical_cast<json>(config));
+    graph_serv_config conf =jsonconfig::config_cast_check<graph_serv_config>(conf_root);
+    handle.reset(new graph(graph_factory::create_graph(conf.method, conf.parameter)));
+    this->config.assign(config);
+    id_ = 0;
+}
+
+void _Graph::load(const std::string& data, const std::string& type, uint64_t version) {
+    _Base<jubatus::core::driver::graph>::load(data, type, version);
+    id_ = handle->find_max_int_id() + 1;
+}
+
+std::string _Graph::create_node() {
+    uint64_t nid = generate_id();
+    handle->create_node(nid);
+    return lexical_cast<std::string>(nid);
+}
+
+bool _Graph::remove_node(const std::string& node_id) {
+    node_id_t nid = lexical_cast<node_id_t>(node_id);
+    handle->remove_node(nid);
+    return true;
+}
+
+bool _Graph::update_node(const std::string& node_id,
+                         const property_t& property) {
+    handle->update_node(lexical_cast<node_id_t>(node_id), property);
+    return true;
+}
+
+edge_id_t _Graph::create_edge(const std::string& src,
+                              const std::string& target,
+                              const property_t& property) {
+    edge_id_t eid = generate_id();
+    handle->create_edge(eid, lexical_cast<node_id_t>(src), lexical_cast<node_id_t>(target), property);
+    return eid;
+}
+
+bool _Graph::update_edge(edge_id_t edge_id,
+                         const property_t& property) {
+    handle->update_edge(edge_id, property);
+    return true;
+}
+
+void _Graph::remove_edge(edge_id_t edge_id) {
+    handle->remove_edge(edge_id);
+}
+
+double _Graph::get_centrality(const std::string& node_id,
+                              int centrality_type,
+                              const jubatus::core::graph::preset_query& q) const {
+    node_id_t nid = lexical_cast<node_id_t>(node_id);
+    if (centrality_type == 0) {
+        return handle->get_centrality(nid, jubatus::core::graph::EIGENSCORE, q);
+    } else {
+        std::stringstream msg;
+        msg << "unknown centrality type: " << centrality_type;
+        throw jubatus::core::common::exception::runtime_error(msg.str());
+    }
+}
+
+void _Graph::add_centrality_query(const jubatus::core::graph::preset_query& q) {
+    handle->add_centrality_query(q);
+}
+
+void _Graph::add_shortest_path_query(const jubatus::core::graph::preset_query& q) {
+    handle->add_shortest_path_query(q);
+}
+
+void _Graph::remove_centrality_query(const jubatus::core::graph::preset_query& q) {
+    handle->remove_centrality_query(q);
+}
+
+void _Graph::remove_shortest_path_query(const jubatus::core::graph::preset_query& q) {
+    handle->remove_shortest_path_query(q);
+}
+
+std::vector<node_id_t> _Graph::get_shortest_path(const std::string& src,
+                                                 const std::string& target,
+                                                 uint64_t max_hop,
+                                                 const jubatus::core::graph::preset_query &q) const {
+    return handle->get_shortest_path(lexical_cast<node_id_t>(src),
+                                     lexical_cast<node_id_t>(target),
+                                     max_hop, q);
+}
+
+void _Graph::update_index() {
+    handle->update_index();
+}
+
+jubatus::core::graph::node_info _Graph::get_node(const std::string& node_id) const {
+    return handle->get_node(lexical_cast<node_id_t>(node_id));
+}
+
+jubatus::core::graph::edge_info _Graph::get_edge(edge_id_t eid) const {
+    return handle->get_edge(eid);
 }

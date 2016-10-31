@@ -32,7 +32,6 @@ CONFIG = {
 class TestNearestNeighbor(unittest.TestCase):
     def test_invalid_configs(self):
         self.assertRaises(TypeError, NearestNeighbor)
-        self.assertRaises(ValueError, NearestNeighbor, 'hoge')
         self.assertRaises(ValueError, NearestNeighbor, {})
         self.assertRaises(TypeError, NearestNeighbor, {'method': 'hoge'})
         self.assertRaises(RuntimeError, NearestNeighbor,

@@ -32,7 +32,6 @@ CONFIG = {
 class TestRecommender(unittest.TestCase):
     def test_invalid_config(self):
         self.assertRaises(TypeError, Recommender)
-        self.assertRaises(ValueError, Recommender, 'hoge')
         self.assertRaises(ValueError, Recommender, {})
         self.assertRaises(TypeError, Recommender, {'method': 'hoge'})
         self.assertRaises(RuntimeError, Recommender,

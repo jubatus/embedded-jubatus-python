@@ -53,6 +53,19 @@ install:
       docker exec test apt-get --force-yes -y install jubatus python-dev python-pip g++;
     fi
   - docker exec test pip install jubatus cython
+  - if [ "$TRAVIS_BRANCH" != "master" ]; then
+      if [ "$DIST" == "centos" ]; then
+        docker exec test yum -y install git;
+      elif [ "$DIST" == "ubuntu" ]; then
+        docker exec test apt-get --force-yes -y install git bzip2 libmsgpack-dev;
+      fi;
+      docker exec test git clone -b develop https://github.com/jubatus/jubatus_core.git;
+      if [ "$DIST" == "centos" ]; then
+        docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install && ldconfig";
+      elif [ "$DIST" == "ubuntu" ]; then
+        docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/opt/jubatus --regexp-library=none && ./waf build && ./waf install";
+      fi
+    fi
 
 script:
   - if [ "$DIST" == "centos" ]; then

@@ -18,7 +18,6 @@ CONFIG = {
 class TestBandit(unittest.TestCase):
     def test_invalid_configs(self):
         self.assertRaises(TypeError, Bandit)
-        self.assertRaises(ValueError, Bandit, 'hoge')
         self.assertRaises(ValueError, Bandit, {})
         self.assertRaises(RuntimeError, Bandit, {'method': 'hoge'})
         invalid_config = dict(CONFIG)

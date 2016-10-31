@@ -19,12 +19,22 @@ from _wrapper cimport _NearestNeighbor
 from _wrapper cimport _Recommender
 from _wrapper cimport _Regression
 from _wrapper cimport _Stat
+from _wrapper cimport _Weight
+from _wrapper cimport _Graph
 from _wrapper cimport arm_info
 from _wrapper cimport classify_result_elem
 from _wrapper cimport datum
 from _wrapper cimport keyword_params
 from _wrapper cimport keyword_with_params
 from _wrapper cimport lexical_cast
+from _wrapper cimport sfv_t
+from _wrapper cimport prop_t
+from _wrapper cimport node_id_t
+from _wrapper cimport edge_id_t
+from _wrapper cimport node_info
+from _wrapper cimport edge_info
+from _wrapper cimport preset_query
+from _wrapper cimport indexed_point
 
 from jubatus.anomaly.types import IdWithScore as AnomalyIdWithScore
 from jubatus.bandit.types import ArmInfo
@@ -35,16 +45,25 @@ from jubatus.burst.types import Window
 from jubatus.classifier.types import EstimateResult
 from jubatus.classifier.types import LabeledDatum
 from jubatus.clustering.types import WeightedDatum
+from jubatus.clustering.types import WeightedIndex
 from jubatus.common.datum import Datum
 from jubatus.nearest_neighbor.types import IdWithScore as NNIdWithScore
 from jubatus.recommender.types import IdWithScore as RecommenderIdWithScore
 from jubatus.regression.types import ScoredDatum
+from jubatus.weight.types import Feature
+from jubatus.graph.types import Edge
+from jubatus.graph.types import Node
+from jubatus.graph.types import PresetQuery
+from jubatus.graph.types import Query
+from jubatus.graph.types import ShortestPathQuery
 
 
 class _JubatusBase(object):
     def __init__(self, config):
         import json
         if isinstance(config, str):
+            # loads config from file
+            config = open(config, 'rb').read().decode('utf8')
             # JSON parse test
             json.loads(config)
         else:
@@ -104,6 +123,8 @@ include 'nearest_neighbor.pyx'
 include 'recommender.pyx'
 include 'regression.pyx'
 include 'stat.pyx'
+include 'weight.pyx'
+include 'graph.pyx'
 
 class Anomaly(_JubatusBase, _AnomalyWrapper):
     pass
@@ -130,4 +151,10 @@ class Regression(_JubatusBase, _RegressionWrapper):
     pass
 
 class Stat(_JubatusBase, _StatWrapper):
+    pass
+
+class Weight(_JubatusBase, _WeightWrapper):
+    pass
+
+class Graph(_JubatusBase, _GraphWrapper):
     pass
