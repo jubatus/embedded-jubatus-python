@@ -12,7 +12,7 @@ embedded-jubatus-python
 embedded-jubatus-python is a Python bridge to call `Jubatus Core <https://github.com/jubatus/jubatus_core>`_ C++ library.
 
 The interface of embedded-jubatus-python is the same as that of RPC client classes.
-See the `API Reference <http://jubat.us/en/api.html>`_ for details.
+See the `API Reference <http://jubat.us/en/api/>`_ for details.
 
 Install
 -------
