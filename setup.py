@@ -52,7 +52,7 @@ setup(
                 'src/_model.cpp'
             ],
             include_dirs=include_dirs,
-            libraries=['jubatus_core', 'jubaserv_common'],
+            libraries=['jubatus_core'],
             language='c++')
     ]),
     install_requires=['jubatus'],
