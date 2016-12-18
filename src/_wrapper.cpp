@@ -70,7 +70,7 @@ _Classifier::_Classifier(const std::string& config) {
     converter_config fvconv_config;
     parse_config(config, &method, &params, &fvconv_config);
     handle.reset(new classifier(classifier_factory::create_classifier(
-        method, params, storage_factory::create_storage("local")),
+        method, params, storage_factory::create_storage("local_mixture")),
         make_fv_converter(fvconv_config, NULL)));
     this->config.assign(config);
 }
@@ -108,7 +108,7 @@ _Regression::_Regression(const std::string& config) {
     jsonconfig::config params;
     converter_config fvconv_config;
     parse_config(config, &method, &params, &fvconv_config);
-    shared_ptr<storage_base> model = storage_factory::create_storage("local");
+    shared_ptr<storage_base> model = storage_factory::create_storage("local_mixture");
     handle.reset(new regression(
         regression_factory::create_regression(method, params, model),
         make_fv_converter(fvconv_config, NULL)));
