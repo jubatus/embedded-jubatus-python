@@ -1,4 +1,5 @@
 import os.path
+import platform
 
 from Cython.Build import cythonize
 from setuptools import Extension
@@ -23,6 +24,11 @@ old_defs = open(defs_path, 'r').read() if os.path.isfile(defs_path) else ''
 if defs != old_defs:
     with open('src/defs.pyx', 'w') as f:
         f.write(defs)
+
+if platform.system() == 'Darwin':
+    extra_compile_args = ['-std=c++11']
+else:
+    extra_compile_args = []
 
 setup(
     name='embedded_jubatus',
@@ -53,7 +59,8 @@ setup(
             ],
             include_dirs=include_dirs,
             libraries=['jubatus_core', 'jubaserv_common'],
-            language='c++')
+            language='c++',
+            extra_compile_args=extra_compile_args)
     ]),
     install_requires=['jubatus'],
     test_suite='tests',
