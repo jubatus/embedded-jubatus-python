@@ -58,7 +58,7 @@ setup(
                 'src/_model.cpp'
             ],
             include_dirs=include_dirs,
-            libraries=['jubatus_core', 'jubaserv_common'],
+            libraries=['jubatus_core', 'jubatus_util_text'],
             language='c++',
             extra_compile_args=extra_compile_args)
     ]),
