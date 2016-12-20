@@ -113,6 +113,15 @@ class _JubatusBase(object):
     def get_client(self):
         raise RuntimeError
 
+    def __getstate__(self):
+        return (self.get_config(), self.save_bytes())
+
+    def __setstate__(self, state):
+        import json
+        cfg, model = state
+        self.__init__(json.loads(cfg))
+        self.load_bytes(model)
+
 include 'types.pyx'
 include 'anomaly.pyx'
 include 'bandit.pyx'

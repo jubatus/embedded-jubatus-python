@@ -1,7 +1,9 @@
 import json
 import os
+import pickle
 import tempfile
 import unittest
+import sys
 
 try:
     from unittest import skipIf
@@ -88,6 +90,11 @@ class TestClassifier(unittest.TestCase):
         x.load_bytes(model)
         _test_classify(x)
         self.assertEqual(CONFIG, json.loads(x.get_config()))
+
+        if sys.version_info[0] == 3:
+            x = pickle.loads(pickle.dumps(x))
+            _test_classify(x)
+            self.assertEqual(CONFIG, json.loads(x.get_config()))
 
     def test_str(self):
         x = Classifier(CONFIG)
