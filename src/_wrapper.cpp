@@ -2,6 +2,7 @@
 
 #include <jubatus/core/common/jsonconfig.hpp>
 #include <jubatus/core/fv_converter/converter_config.hpp>
+#include <jubatus/core/fv_converter/so_factory.hpp>
 #include <jubatus/core/storage/storage_factory.hpp>
 #include <jubatus/core/storage/column_table.hpp>
 #include <jubatus/core/anomaly/anomaly_factory.hpp>
@@ -20,6 +21,8 @@ using jubatus::core::fv_converter::make_fv_converter;
 using jubatus::core::storage::storage_base;
 using jubatus::core::storage::storage_factory;
 using jubatus::util::lang::lexical_cast;
+
+jubatus::core::fv_converter::so_factory _so_factory;
 
 void parse_config(const std::string& config, std::string *method,
                   jsonconfig::config *params, converter_config *fvconv_config) {
@@ -70,8 +73,8 @@ _Classifier::_Classifier(const std::string& config) {
     converter_config fvconv_config;
     parse_config(config, &method, &params, &fvconv_config);
     handle.reset(new classifier(classifier_factory::create_classifier(
-        method, params, storage_factory::create_storage("local")),
-        make_fv_converter(fvconv_config, NULL)));
+        method, params, storage_factory::create_storage("local_mixture")),
+        make_fv_converter(fvconv_config, &_so_factory)));
     this->config.assign(config);
 }
 
@@ -108,10 +111,10 @@ _Regression::_Regression(const std::string& config) {
     jsonconfig::config params;
     converter_config fvconv_config;
     parse_config(config, &method, &params, &fvconv_config);
-    shared_ptr<storage_base> model = storage_factory::create_storage("local");
+    shared_ptr<storage_base> model = storage_factory::create_storage("local_mixture");
     handle.reset(new regression(
         regression_factory::create_regression(method, params, model),
-        make_fv_converter(fvconv_config, NULL)));
+        make_fv_converter(fvconv_config, &_so_factory)));
     this->config.assign(config);
 }
 
@@ -133,7 +136,7 @@ _Recommender::_Recommender(const std::string& config) {
     std::string my_id;
     handle.reset(new recommender(
         recommender_factory::create_recommender(method, params, my_id),
-        make_fv_converter(fvconv_config, NULL)));
+        make_fv_converter(fvconv_config, &_so_factory)));
     this->config.assign(config);
 }
 
@@ -189,7 +192,7 @@ _NearestNeighbor::_NearestNeighbor(const std::string& config) {
     shared_ptr<column_table> table(new column_table);
     handle.reset(new nearest_neighbor(
         create_nearest_neighbor(method, params, table, my_id),
-        make_fv_converter(fvconv_config, NULL)));
+        make_fv_converter(fvconv_config, &_so_factory)));
     this->config.assign(config);
 }
 
@@ -227,7 +230,7 @@ _Anomaly::_Anomaly(const std::string& config) : idgen(0) {
     std::string my_id;
     handle.reset(new anomaly(
         anomaly_factory::create_anomaly(method, params, my_id),
-        make_fv_converter(fvconv_config, NULL)));
+        make_fv_converter(fvconv_config, &_so_factory)));
     this->config.assign(config);
 }
 
@@ -276,7 +279,7 @@ _Clustering::_Clustering(const std::string& config) {
                                    compressor_method,
                                    params,
                                    compressor_params),
-        make_fv_converter(fvconv_config, NULL)));
+        make_fv_converter(fvconv_config, &_so_factory)));
     this->config.assign(config);
 }
 
@@ -478,7 +481,7 @@ _Weight::_Weight(const std::string& config) {
     using jubatus::core::driver::weight;
     converter_config fvconv_config;
     parse_config(config, NULL, NULL, &fvconv_config);
-    handle.reset(new weight(make_fv_converter(fvconv_config, NULL)));
+    handle.reset(new weight(make_fv_converter(fvconv_config, &_so_factory)));
     this->config.assign(config);
 }
 
