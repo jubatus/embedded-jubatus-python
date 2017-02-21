@@ -78,7 +78,7 @@ class TestClassifier(unittest.TestCase):
         _test_classify(x)
         model = x.save_bytes()
 
-        x.clear()
+        self.assertTrue(x.clear())
         self.assertEqual({}, x.get_labels())
         x.set_label('Y')
         x.set_label('N')
@@ -139,7 +139,7 @@ class TestClassifier(unittest.TestCase):
 
         _remove_model()
         try:
-            self.assertEqual({'127.0.0.1': 0}, x.save('hoge'))
+            self.assertEqual({'127.0.0.1_0': '/tmp/127.0.0.1_0_classifier_hoge.jubatus'}, x.save('hoge'))
             self.assertTrue(os.path.isfile(path))
             x = Classifier(CONFIG)
             self.assertTrue(x.load('hoge'))
