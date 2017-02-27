@@ -69,7 +69,7 @@ class _JubatusBase(object):
         else:
             config = json.dumps(config, sort_keys=True, indent=4)
         (self.get_config, self.save_bytes, self.load_bytes,
-         self.clear, typ) = self._init(config.encode('utf8'))
+         self._clear_impl, typ) = self._init(config.encode('utf8'))
         if str != bytes and isinstance(typ, bytes):
             typ = typ.decode('ascii')
         self._type = typ
@@ -78,22 +78,23 @@ class _JubatusBase(object):
         host, port = '127.0.0.1', 0
         path = '/tmp/{host}_{port}_{type}_{id}.jubatus'.format(
             host=host, port=port, type=self._type, id=id_)
-        return (path, {host: port})
+        return (path, '{host}_{port}'.format(host=host, port=port))
+
+    def clear(self):
+        self._clear_impl()
+        return True
 
     def load(self, id_):
-        path, ret = self._get_model_path(id_)
-        try:
-            with open(path, 'rb') as f:
-                self.load_bytes(f.read())
-            return True
-        except Exception:
-            return False
+        path, name = self._get_model_path(id_)
+        with open(path, 'rb') as f:
+            self.load_bytes(f.read())
+        return True
 
     def save(self, id_):
-        path, ret = self._get_model_path(id_)
+        path, name = self._get_model_path(id_)
         with open(path, 'wb') as f:
             f.write(self.save_bytes())
-        return ret
+        return {name: path}
 
     def get_status(self):
         raise RuntimeError
@@ -112,6 +113,15 @@ class _JubatusBase(object):
 
     def get_client(self):
         raise RuntimeError
+
+    def __getstate__(self):
+        return (self.get_config(), self.save_bytes())
+
+    def __setstate__(self, state):
+        import json
+        cfg, model = state
+        self.__init__(json.loads(cfg))
+        self.load_bytes(model)
 
 include 'types.pyx'
 include 'anomaly.pyx'

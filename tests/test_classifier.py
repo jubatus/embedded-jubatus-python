@@ -1,7 +1,9 @@
 import json
 import os
+import pickle
 import tempfile
 import unittest
+import sys
 
 try:
     from unittest import skipIf
@@ -76,7 +78,7 @@ class TestClassifier(unittest.TestCase):
         _test_classify(x)
         model = x.save_bytes()
 
-        x.clear()
+        self.assertTrue(x.clear())
         self.assertEqual({}, x.get_labels())
         x.set_label('Y')
         x.set_label('N')
@@ -88,6 +90,11 @@ class TestClassifier(unittest.TestCase):
         x.load_bytes(model)
         _test_classify(x)
         self.assertEqual(CONFIG, json.loads(x.get_config()))
+
+        if sys.version_info[0] == 3:
+            x = pickle.loads(pickle.dumps(x))
+            _test_classify(x)
+            self.assertEqual(CONFIG, json.loads(x.get_config()))
 
     def test_str(self):
         x = Classifier(CONFIG)
@@ -132,7 +139,7 @@ class TestClassifier(unittest.TestCase):
 
         _remove_model()
         try:
-            self.assertEqual({'127.0.0.1': 0}, x.save('hoge'))
+            self.assertEqual({'127.0.0.1_0': '/tmp/127.0.0.1_0_classifier_hoge.jubatus'}, x.save('hoge'))
             self.assertTrue(os.path.isfile(path))
             x = Classifier(CONFIG)
             self.assertTrue(x.load('hoge'))
