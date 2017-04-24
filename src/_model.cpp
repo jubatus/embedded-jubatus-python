@@ -76,16 +76,13 @@ void unpack_model(const std::string& data,
                   msgpack::object **user_data) {
     using jubatus::core::common::read_big_endian;
 
-    uint32_t major, minor, maintenance;
-    std::sscanf(JUBATUS_CORE_VERSION, "%d.%d.%d", &major, &minor, &maintenance);
-
     const char *p = data.data();
     do {
         if (std::memcmp(p, MAGIC_NUMBER, sizeof(MAGIC_NUMBER)) ||
             read_big_endian<uint64_t>(&p[8]) != MODEL_FORMAT_VERSION ||
-            read_big_endian<uint32_t>(&p[16]) != major ||
-            read_big_endian<uint32_t>(&p[20]) != minor ||
-            read_big_endian<uint32_t>(&p[24]) != maintenance) break;
+            read_big_endian<uint32_t>(&p[16]) != 1 /* major version */) {
+            break;
+        }
         uint32_t crc32_expected = read_big_endian<uint32_t>(&p[28]);
         uint64_t system_data_size = read_big_endian<uint64_t>(&p[32]);
         uint64_t user_data_size = read_big_endian<uint64_t>(&p[40]);
