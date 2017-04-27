@@ -48,3 +48,46 @@ cdef class _AnomalyWrapper:
     def get_all_rows(self):
         cdef vector[string] ret = self._handle.get_all_rows()
         return [(<string>ret[i]).decode('utf8') for i in range(ret.size())]
+
+    def fit(self, X):
+        self.partial_fit(X)
+
+    def partial_fit(self, X):
+        import numpy as np
+        cdef datum d
+        cdef vector[string] cache
+        cdef int is_ndarray = isinstance(X, np.ndarray)
+        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
+        cdef rows
+        if not (is_ndarray or is_csr):
+            raise ValueError
+        rows = X.shape[0]
+        if is_ndarray:
+            for i in range(rows):
+                ndarray_to_datum(X, i, d, cache)
+                self._handle.add(d)
+        else:
+            for i in range(rows):
+                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+                self._handle.add(d)
+
+    def decision_function(self, X):
+        import numpy as np
+        cdef datum d
+        cdef vector[string] cache
+        cdef int is_ndarray = isinstance(X, np.ndarray)
+        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
+        cdef rows
+        if not (is_ndarray or is_csr):
+            raise ValueError
+        rows = X.shape[0]
+        y = np.zeros((rows,))
+        if is_ndarray:
+            for i in range(rows):
+                ndarray_to_datum(X, i, d, cache)
+                y[i] = self._handle.calc_score(d)
+        else:
+            for i in range(rows):
+                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+                y[i] = self._handle.calc_score(d)
+        return y
