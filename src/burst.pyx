@@ -9,7 +9,7 @@ cdef _to_window(const pair[double, vector[_Burst.Batch]]& r):
 cdef _to_window_list(map[string, pair[double, vector[_Burst.Batch]]]& r):
     return {it.first.decode('utf8'): _to_window(it.second) for it in r}
 
-cdef class _BurstWrapper:
+cdef class Burst(_JubatusBase):
     cdef _Burst *_handle
 
     def __cinit__(self):
@@ -21,14 +21,20 @@ cdef class _BurstWrapper:
 
     def _init(self, config):
         self._handle = new _Burst(config)
-        typ, ver = b'burst', 1
-        return (
-            lambda: self._handle.get_config().decode('utf8'),
-            lambda: self._handle.dump(typ, ver),
-            lambda x: self._handle.load(x, typ, ver),
-            lambda: self._handle.clear(),
-            typ,
-        )
+        self._type, self._model_ver = b'burst', 1
+
+    def get_config(self):
+        return self._handle.get_config().decode('utf8')
+
+    def save_bytes(self):
+        return self._handle.dump(self._type, self._model_ver)
+
+    def load_bytes(self, x):
+        return self._handle.load(x, self._type, self._model_ver)
+
+    def clear(self):
+        self._handle.clear()
+        return True
 
     def add_documents(self, data):
         ret = 0
