@@ -58,7 +58,10 @@ from jubatus.graph.types import Query
 from jubatus.graph.types import ShortestPathQuery
 
 
-class _JubatusBase(object):
+cdef class _JubatusBase:
+    cdef object _type
+    cdef int _model_ver
+
     def __init__(self, config):
         import json
         if isinstance(config, str):
@@ -68,21 +71,15 @@ class _JubatusBase(object):
             json.loads(config)
         else:
             config = json.dumps(config, sort_keys=True, indent=4)
-        (self.get_config, self.save_bytes, self.load_bytes,
-         self._clear_impl, typ) = self._init(config.encode('utf8'))
-        if str != bytes and isinstance(typ, bytes):
-            typ = typ.decode('ascii')
-        self._type = typ
+        self._init(config.encode('utf8'))
 
     def _get_model_path(self, id_):
-        host, port = '127.0.0.1', 0
+        host, port, typ = '127.0.0.1', 0, self._type
+        if str != bytes and isinstance(typ, bytes):
+            typ = typ.decode('ascii')
         path = '/tmp/{host}_{port}_{type}_{id}.jubatus'.format(
-            host=host, port=port, type=self._type, id=id_)
+            host=host, port=port, type=typ, id=id_)
         return (path, '{host}_{port}'.format(host=host, port=port))
-
-    def clear(self):
-        self._clear_impl()
-        return True
 
     def load(self, id_):
         path, name = self._get_model_path(id_)
@@ -135,36 +132,3 @@ include 'regression.pyx'
 include 'stat.pyx'
 include 'weight.pyx'
 include 'graph.pyx'
-
-class Anomaly(_JubatusBase, _AnomalyWrapper):
-    pass
-
-class Bandit(_JubatusBase, _BanditWrapper):
-    pass
-
-class Burst(_JubatusBase, _BurstWrapper):
-    pass
-
-class Classifier(_JubatusBase, _ClassifierWrapper):
-    pass
-
-class Clustering(_JubatusBase, _ClusteringWrapper):
-    pass
-
-class NearestNeighbor(_JubatusBase, _NearestNeighborWrapper):
-    pass
-
-class Recommender(_JubatusBase, _RecommenderWrapper):
-    pass
-
-class Regression(_JubatusBase, _RegressionWrapper):
-    pass
-
-class Stat(_JubatusBase, _StatWrapper):
-    pass
-
-class Weight(_JubatusBase, _WeightWrapper):
-    pass
-
-class Graph(_JubatusBase, _GraphWrapper):
-    pass

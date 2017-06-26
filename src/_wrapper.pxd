@@ -13,82 +13,82 @@ ctypedef uint64_t node_id_t
 cdef extern from '_wrapper.h' nogil:
     cdef cppclass _Classifier:
         _Classifier(const string& config) except +
-        void train(const string& config, const datum& d)
-        vector[classify_result_elem] classify(const datum& d)
-        vector[pair[string, uint64_t]] get_labels()
-        bool set_label(const string& new_label)
-        bool delete_label(const string& target_label)
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        void train(const string& config, const datum& d) except +
+        vector[classify_result_elem] classify(const datum& d) except +
+        vector[pair[string, uint64_t]] get_labels() except +
+        bool set_label(const string& new_label) except +
+        bool delete_label(const string& target_label) except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Regression:
         _Regression(const string& config) except +
-        void train(float score, const datum& d)
-        float estimate(const datum& d)
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        void train(float score, const datum& d) except +
+        float estimate(const datum& d) except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Recommender:
         _Recommender(const string& config) except +
-        void clear_row(const string& id)
-        void update_row(const string& id, const datum& d)
-        datum complete_row_from_id(const string& id)
-        datum complete_row_from_datum(const datum& d)
-        vector[pair[string, float]] similar_row_from_id(const string& id, size_t ret_num)
-        vector[pair[string, float]] similar_row_from_datum(const datum& d, size_t ret_num)
-        datum decode_row(const string& id)
-        vector[string] get_all_rows()
-        float calc_similarity(const datum& l, const datum& r)
-        float calc_l2norm(const datum& d)
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        void clear_row(const string& id) except +
+        void update_row(const string& id, const datum& d) except +
+        datum complete_row_from_id(const string& id) except +
+        datum complete_row_from_datum(const datum& d) except +
+        vector[pair[string, float]] similar_row_from_id(const string& id, size_t ret_num) except +
+        vector[pair[string, float]] similar_row_from_datum(const datum& d, size_t ret_num) except +
+        datum decode_row(const string& id) except +
+        vector[string] get_all_rows() except +
+        float calc_similarity(const datum& l, const datum& r) except +
+        float calc_l2norm(const datum& d) except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _NearestNeighbor:
         _NearestNeighbor(const string& config) except +
-        void set_row(const string& id, const datum& d)
-        vector[pair[string, float]] neighbor_row_from_id(const string& id, size_t size)
-        vector[pair[string, float]] neighbor_row_from_datum(const datum& d, size_t size)
-        vector[pair[string, float]] similar_row_from_id(const string& id, size_t size)
-        vector[pair[string, float]] similar_row_from_datum(const datum& d, size_t size)
-        vector[string] get_all_rows()
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        void set_row(const string& id, const datum& d) except +
+        vector[pair[string, float]] neighbor_row_from_id(const string& id, size_t size) except +
+        vector[pair[string, float]] neighbor_row_from_datum(const datum& d, size_t size) except +
+        vector[pair[string, float]] similar_row_from_id(const string& id, size_t size) except +
+        vector[pair[string, float]] similar_row_from_datum(const datum& d, size_t size) except +
+        vector[string] get_all_rows() except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Anomaly:
         _Anomaly(const string& config) except +
-        void clear_row(const string& id)
-        pair[string, float] add(const datum& d)
-        float update(const string& id, const datum& d)
-        float overwrite(const string& id, const datum& d)
-        float calc_score(const datum& d)
-        vector[string] get_all_rows()
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        void clear_row(const string& id) except +
+        pair[string, float] add(const datum& d) except +
+        float update(const string& id, const datum& d) except +
+        float overwrite(const string& id, const datum& d) except +
+        float calc_score(const datum& d) except +
+        vector[string] get_all_rows() except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Clustering:
         _Clustering(const string& config) except +
-        void push(const vector[indexed_point]& points)
-        size_t get_revision()
-        vector[vector[pair[double, datum]]] get_core_members()
-        vector[datum] get_k_center()
-        datum get_nearest_center(const datum& d)
-        vector[pair[double, datum]] get_nearest_members(const datum& d)
-        vector[vector[pair[double, string]]] get_core_members_light()
-        vector[pair[double, string]] get_nearest_members_light(const datum& d)
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        void push(const vector[indexed_point]& points) except +
+        size_t get_revision() except +
+        vector[vector[pair[double, datum]]] get_core_members() except +
+        vector[datum] get_k_center() except +
+        datum get_nearest_center(const datum& d) except +
+        vector[pair[double, datum]] get_nearest_members(const datum& d) except +
+        vector[vector[pair[double, string]]] get_core_members_light() except +
+        vector[pair[double, string]] get_nearest_members_light(const datum& d) except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Burst:
         cppclass Batch:
@@ -96,90 +96,90 @@ cdef extern from '_wrapper.h' nogil:
             int relevant_data_count
             double burst_weight
         _Burst(const string& config) except +
-        bool add_document(const string& str, double pos)
-        pair[double,vector[Batch]] get_result(const string& keyword)
-        pair[double,vector[Batch]] get_result_at(const string& keyword, double pos)
-        map[string, pair[double,vector[Batch]]] get_all_bursted_results()
-        map[string, pair[double,vector[Batch]]] get_all_bursted_results_at(double pos)
-        vector[keyword_with_params] get_all_keywords()
-        bool add_keyword(const string& keyword, const keyword_params& params)
-        bool remove_keyword(const string& keyword)
-        bool remove_all_keywords()
-        void calculate_results()
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        bool add_document(const string& str, double pos) except +
+        pair[double,vector[Batch]] get_result(const string& keyword) except +
+        pair[double,vector[Batch]] get_result_at(const string& keyword, double pos) except +
+        map[string, pair[double,vector[Batch]]] get_all_bursted_results() except +
+        map[string, pair[double,vector[Batch]]] get_all_bursted_results_at(double pos) except +
+        vector[keyword_with_params] get_all_keywords() except +
+        bool add_keyword(const string& keyword, const keyword_params& params) except +
+        bool remove_keyword(const string& keyword) except +
+        bool remove_all_keywords() except +
+        void calculate_results() except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Bandit:
         _Bandit(const string& config) except +
-        bool register_arm(const string& arm_id)
-        bool delete_arm(const string& arm_id)
-        string select_arm(const string& player_id)
-        bool register_reward(const string& player_id, const string& arm_id, double reward)
-        map[string, arm_info] get_arm_info(const string& player_id)
-        bool reset(const string& player_id)
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        bool register_arm(const string& arm_id) except +
+        bool delete_arm(const string& arm_id) except +
+        string select_arm(const string& player_id) except +
+        bool register_reward(const string& player_id, const string& arm_id, double reward) except +
+        map[string, arm_info] get_arm_info(const string& player_id) except +
+        bool reset(const string& player_id) except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Stat:
         _Stat(const string& config) except +
-        void push(const string& key, double value)
-        double sum(const string& key)
-        double stddev(const string& key)
-        double max(const string& key)
-        double min(const string& key)
-        double entropy()
-        double moment(const string& key, int degree, double center)
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        void push(const string& key, double value) except +
+        double sum(const string& key) except +
+        double stddev(const string& key) except +
+        double max(const string& key) except +
+        double min(const string& key) except +
+        double entropy() except +
+        double moment(const string& key, int degree, double center) except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Weight:
         _Weight(const string& config) except +
-        sfv_t update(const datum& d)
-        sfv_t calc_weight(const datum& d)
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        sfv_t update(const datum& d) except +
+        sfv_t calc_weight(const datum& d) except +
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
     cdef cppclass _Graph:
         _Graph(const string& config) except +
-        string create_node()
-        bool remove_node(const string& node_id)
+        string create_node() except +
+        bool remove_node(const string& node_id) except +
         bool update_node(const string& node_id,
-                         const prop_t& properties)
+                         const prop_t& properties) except +
         edge_id_t create_edge(const string& src,
                               const string& target,
-                              const prop_t& properties)
+                              const prop_t& properties) except +
         bool update_edge(edge_id_t edge_id,
-                         const prop_t& properties)
-        void remove_edge(edge_id_t edge_id)
+                         const prop_t& properties) except +
+        void remove_edge(edge_id_t edge_id) except +
 
         double get_centrality(const string& node_id,
                               int centrality_type,
-                              const preset_query& q)
-        void add_centrality_query(const preset_query& q)
-        void add_shortest_path_query(const preset_query& q)
-        void remove_centrality_query(const preset_query& q)
-        void remove_shortest_path_query(const preset_query& q)
+                              const preset_query& q) except +
+        void add_centrality_query(const preset_query& q) except +
+        void add_shortest_path_query(const preset_query& q) except +
+        void remove_centrality_query(const preset_query& q) except +
+        void remove_shortest_path_query(const preset_query& q) except +
         vector[node_id_t] get_shortest_path(const string& src,
                                             const string& target,
                                             uint64_t max_hop,
-                                            const preset_query& q)
+                                            const preset_query& q) except +
 
-        void update_index()
-        node_info get_node(const string& node_id)
-        edge_info get_edge(edge_id_t eid)
+        void update_index() except +
+        node_info get_node(const string& node_id) except +
+        edge_info get_edge(edge_id_t eid) except +
 
-        string dump(const string& type, uint64_t ver)
-        void load(const string& data, const string& type, uint64_t ver)
-        string get_config()
-        void clear()
+        string dump(const string& type, uint64_t ver) except +
+        void load(const string& data, const string& type, uint64_t ver) except +
+        string get_config() except +
+        void clear() except +
 
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter' nogil:
     cdef cppclass datum:

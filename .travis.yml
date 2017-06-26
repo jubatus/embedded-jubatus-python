@@ -20,6 +20,9 @@ matrix:
     - env:
       - DIST=ubuntu
       - VERSION=14.04
+    - env:
+      - DIST=ubuntu
+      - VERSION=16.04
 
 before_install:
   - docker pull ${DIST}:${VERSION}
@@ -37,12 +40,17 @@ before_install:
         docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/precise binary/' > /etc/apt/sources.list.d/jubatus.list";
       elif [ "$VERSION" == "14.04" ]; then
         docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/trusty binary/' >  /etc/apt/sources.list.d/jubatus.list";
+      elif [ "$VERSION" == "16.04" ]; then
+        docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/xenial binary/' >  /etc/apt/sources.list.d/jubatus.list";
       fi;
     fi
 
 install:
   - if [ "$DIST" == "centos" ]; then
-      docker exec test yum -y install jubatus-devel jubatus-core-devel gcc-c++ python-devel epel-release;
+      docker exec test yum -y install gcc-c++ python-devel epel-release;
+      if [ "$TRAVIS_BRANCH" == "master" ]; then
+        docker exec test yum -y install jubatus-core-devel;
+      fi;
       docker exec test yum -y install python-pip;
       if [ $VERSION -eq 6 ]; then
         docker exec test pip install --upgrade setuptools;
@@ -50,12 +58,15 @@ install:
     fi
   - if [ "$DIST" == "ubuntu" ]; then
       docker exec test apt-get -y update;
-      docker exec test apt-get --force-yes -y install jubatus python-dev python-pip g++;
+      docker exec test apt-get --force-yes -y install python-dev python-pip g++;
+      if [ "$TRAVIS_BRANCH" == "master" ]; then
+        docker exec test apt-get --force-yes -y install jubatus;
+      fi;
     fi
   - docker exec test pip install jubatus cython
   - if [ "$TRAVIS_BRANCH" != "master" ]; then
       if [ "$DIST" == "centos" ]; then
-        docker exec test yum -y install git;
+        docker exec test yum -y install git bzip2 msgpack-devel-0.5.9;
       elif [ "$DIST" == "ubuntu" ]; then
         docker exec test apt-get --force-yes -y install git bzip2 libmsgpack-dev;
       fi;
@@ -63,7 +74,7 @@ install:
       if [ "$DIST" == "centos" ]; then
         docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install && ldconfig";
       elif [ "$DIST" == "ubuntu" ]; then
-        docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/opt/jubatus --regexp-library=none && ./waf build && ./waf install";
+        docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install";
       fi
     fi
 

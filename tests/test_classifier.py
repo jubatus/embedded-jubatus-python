@@ -244,3 +244,13 @@ class TestClassifier(unittest.TestCase):
             fd.write(b'{"hoge')
             fd.flush()
             self.assertRaises(ValueError, Classifier, fd.name)
+
+    def test_issue_30(self):
+        path = '/tmp/127.0.0.1_0_classifier_foo.jubatus'
+        open(path, 'wb').close()
+        try:
+            Classifier({'method': 'perceptron', 'converter': {}}).load('foo')
+        except Exception:
+            pass
+        finally:
+            os.remove(path)
