@@ -175,6 +175,7 @@ class TestClassifier(unittest.TestCase):
         self.assertTrue(not isinstance(y[0], (list, tuple, np.ndarray)))
         self.assertTrue(y[0] > 0)
         self.assertTrue(y[1] < 0)
+        self.assertEqual([0, 1], sorted(x.classes_))
 
     @skipIf(not NUMPY, 'numpy cannot import')
     def test_sparse(self):

@@ -1,6 +1,6 @@
 cdef class Classifier(_JubatusBase):
     cdef _Classifier *_handle
-    cdef object classes_
+    cdef object _classes
 
     def __cinit__(self):
         self._handle = NULL
@@ -11,7 +11,7 @@ cdef class Classifier(_JubatusBase):
 
     def _init(self, config):
         self._handle = new _Classifier(config)
-        self.classes_ = None
+        self._classes = None
         self._type, self._model_ver = b'classifier', 1
 
     def get_config(self):
@@ -76,9 +76,13 @@ cdef class Classifier(_JubatusBase):
     def delete_label(self, target_label):
         return self._handle.delete_label(target_label.encode('utf8'))
 
+    @property
+    def classes_(self):
+        return self._classes
+
     def fit(self, X, y):
         self._handle.clear()
-        self.classes_ = None
+        self._classes = None
         return self.partial_fit(X, y)
 
     def partial_fit(self, X, y):
@@ -93,9 +97,9 @@ cdef class Classifier(_JubatusBase):
         cdef int is_csr = (type(X).__name__ == 'csr_matrix')
         if not (is_ndarray or is_csr):
             raise ValueError
-        if self.classes_ is None:
-            self.classes_ = []
-        max_label = len(self.classes_) - 1
+        if self._classes is None:
+            self._classes = []
+        max_label = len(self._classes) - 1
         for i in range(rows):
             if is_ndarray:
                 ndarray_to_datum(X, i, d, cache)
@@ -106,8 +110,8 @@ cdef class Classifier(_JubatusBase):
             if max_label < y[i]:
                 max_label = y[i]
             self._handle.train(cache[y[i]], d)
-        for j in range(len(self.classes_), max_label + 1):
-            self.classes_.append(j)
+        for j in range(len(self._classes), max_label + 1):
+            self._classes.append(j)
         return self
 
     def decision_function(self, X):
