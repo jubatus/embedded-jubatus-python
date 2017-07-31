@@ -40,8 +40,10 @@ cdef class Weight(_JubatusBase):
         return _to_features(r)
 
 cdef _to_features(sfv_t& r):
-    ret = [None] * r.size()
-    for i in range(r.size()):
+    cdef int sz
+    sz = r.size()
+    ret = [None] * sz
+    for i in range(sz):
         ret[i] = Feature(r[i].first.decode('utf8'),
                          r[i].second)
     return ret
