@@ -55,3 +55,50 @@ cdef class Regression(_JubatusBase):
             return ret
         else:
             raise ValueError
+
+    def fit(self, X, y):
+        self.clear()
+        return self.partial_fit(X, y)
+
+    def partial_fit(self, X, y):
+        import numpy as np
+        if len(X.shape) != 2 or len(y.shape) != 1 or X.shape[0] != y.shape[0]:
+            raise ValueError('invalid shape')
+        cdef int i
+        cdef double score
+        cdef rows = X.shape[0]
+        cdef datum d
+        cdef vector[string] cache
+        cdef int is_ndarray = isinstance(X, np.ndarray)
+        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
+        if not (is_ndarray or is_csr):
+            raise ValueError
+        for i in range(rows):
+            if is_ndarray:
+                ndarray_to_datum(X, i, d, cache)
+            else:
+                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+            score = y[i]
+            self._handle.train(score, d)
+        return self
+
+    def predict(self, X):
+        import numpy as np
+        if len(X.shape) != 2:
+            raise ValueError('invalid shape')
+        cdef int i
+        cdef rows = X.shape[0]
+        cdef datum d
+        cdef vector[string] cache
+        cdef int is_ndarray = isinstance(X, np.ndarray)
+        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
+        if not (is_ndarray or is_csr):
+            raise ValueError
+        ret = np.zeros([rows], dtype=np.float32)
+        for i in range(rows):
+            if is_ndarray:
+                ndarray_to_datum(X, i, d, cache)
+            else:
+                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+            ret[i] = self._handle.estimate(d)
+        return ret
