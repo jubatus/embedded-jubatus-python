@@ -148,10 +148,12 @@ public:
 
     void clear_row(const std::string& id);
     std::pair<std::string, float> add(const datum& d);
+    std::vector<std::string> add_bulk(const std::vector<std::pair<std::string, datum> >& data);
     float update(const std::string& id, const datum& d);
     float overwrite(const std::string &id, const datum& d);
     float calc_score(const datum& d) const;
     std::vector<std::string> get_all_rows() const;
+    inline std::string get_next_id() { return jubatus::util::lang::lexical_cast<std::string>(idgen++); }
 };
 
 class _Clustering : public _Base<jubatus::core::driver::clustering> {
