@@ -52,9 +52,6 @@ install:
         docker exec test yum -y install jubatus-core-devel;
       fi;
       docker exec test yum -y install python-pip;
-      if [ $VERSION -eq 6 ]; then
-        docker exec test pip install --upgrade setuptools;
-      fi;
     fi
   - if [ "$DIST" == "ubuntu" ]; then
       docker exec test apt-get -y update;
@@ -63,7 +60,7 @@ install:
         docker exec test apt-get --force-yes -y install jubatus;
       fi;
     fi
-  - docker exec test pip install jubatus cython
+  - docker exec test pip install -U pip setuptools;
   - if [ "$TRAVIS_BRANCH" != "master" ]; then
       if [ "$DIST" == "centos" ]; then
         docker exec test yum -y install git bzip2 msgpack-devel-0.5.9;
@@ -80,18 +77,7 @@ install:
 
 script:
   - if [ "$DIST" == "centos" ]; then
-      docker exec -t test bash -ic "python ./setup.py build_ext -i && python ./setup.py test";
+      docker exec -t test bash -ic "pip install -e . && pip install scipy && python ./setup.py test";
     elif [ "$DIST" == "ubuntu" ]; then
-      docker exec -t test bash -ic "source /opt/jubatus/profile; python ./setup.py build_ext -i && python ./setup.py test";
-    fi
-  - if [ "$DIST" == "centos" ]; then
-      docker exec test yum -y install numpy scipy;
-    elif [ "$DIST" == "ubuntu" ]; then
-      docker exec test apt-get --force-yes -y install python-numpy python-scipy;
-    fi
-  - docker exec test rm -rf build
-  - if [ "$DIST" == "centos" ]; then
-      docker exec -t test bash -ic "python ./setup.py build_ext -i && python ./setup.py test";
-    elif [ "$DIST" == "ubuntu" ]; then
-      docker exec -t test bash -ic "source /opt/jubatus/profile; python ./setup.py build_ext -i && python ./setup.py test";
+      docker exec -t test bash -ic "source /opt/jubatus/profile; pip install -e . && pip install scipy && python ./setup.py test";
     fi

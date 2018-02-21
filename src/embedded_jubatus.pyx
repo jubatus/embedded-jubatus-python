@@ -6,9 +6,7 @@ from libcpp.map cimport map
 from cython.operator cimport dereference
 from cython.operator cimport preincrement
 
-include 'defs.pyx'
-IF NUMPY:
-    cimport numpy as c_np
+cimport numpy as c_np
 
 from _wrapper cimport _Anomaly
 from _wrapper cimport _Bandit
