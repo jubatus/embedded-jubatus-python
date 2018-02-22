@@ -36,6 +36,16 @@ cdef class Anomaly(_JubatusBase):
         r = self._handle.add(d)
         return AnomalyIdWithScore(r.first.decode('utf8'), r.second)
 
+    def add_bulk(self, data):
+        cdef datum d
+        cdef vector[pair[string, datum]] vec
+        cdef vector[string] ret
+        for x in data:
+            datum_py2native(x, d)
+            vec.push_back(pair[string, datum](self._handle.get_next_id(), d))
+        ret = self._handle.add_bulk(vec)
+        return [i.decode('ascii') for i in ret]
+
     def update(self, id_, row):
         cdef datum d
         datum_py2native(row, d)
@@ -53,7 +63,7 @@ cdef class Anomaly(_JubatusBase):
 
     def get_all_rows(self):
         cdef vector[string] ret = self._handle.get_all_rows()
-        return [(<string>ret[i]).decode('utf8') for i in range(ret.size())]
+        return [i.decode('ascii') for i in ret]
 
     def fit(self, X):
         self.partial_fit(X)
@@ -65,17 +75,19 @@ cdef class Anomaly(_JubatusBase):
         cdef int is_ndarray = isinstance(X, np.ndarray)
         cdef int is_csr = (type(X).__name__ == 'csr_matrix')
         cdef rows
+        cdef vector[pair[string, datum]] vec
         if not (is_ndarray or is_csr):
             raise ValueError
         rows = X.shape[0]
         if is_ndarray:
             for i in range(rows):
                 ndarray_to_datum(X, i, d, cache)
-                self._handle.add(d)
+                vec.push_back(pair[string, datum](self._handle.get_next_id(), d))
         else:
             for i in range(rows):
                 csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
-                self._handle.add(d)
+                vec.push_back(pair[string, datum](self._handle.get_next_id(), d))
+        self._handle.add_bulk(vec)
 
     def decision_function(self, X):
         import numpy as np
