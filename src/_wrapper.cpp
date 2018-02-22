@@ -244,8 +244,11 @@ void _Anomaly::clear_row(const std::string& id) {
 }
 
 std::pair<std::string, float> _Anomaly::add(const datum& d) {
-    std::string id = lexical_cast<std::string>(idgen++);
-    return handle->add(id, d);
+    return handle->add(get_next_id(), d);
+}
+
+std::vector<std::string> _Anomaly::add_bulk(const std::vector<std::pair<std::string, datum> >& data) {
+    return handle->add_bulk(data);
 }
 
 float _Anomaly::update(const std::string& id, const datum& d) {

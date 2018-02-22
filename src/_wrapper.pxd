@@ -66,6 +66,7 @@ cdef extern from '_wrapper.h' nogil:
         _Anomaly(const string& config) except +
         void clear_row(const string& id) except +
         pair[string, float] add(const datum& d) except +
+        vector[string] add_bulk(const vector[pair[string, datum]]& data) except +
         float update(const string& id, const datum& d) except +
         float overwrite(const string& id, const datum& d) except +
         float calc_score(const datum& d) except +
@@ -74,6 +75,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        string get_next_id() except +
 
     cdef cppclass _Clustering:
         _Clustering(const string& config) except +

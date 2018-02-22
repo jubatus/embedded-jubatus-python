@@ -172,10 +172,8 @@ cdef class Classifier(_JubatusBase):
         cdef vector[string] cache
         cdef vector[classify_result_elem] r
         cdef int rows = X.shape[0]
-        IF NUMPY:
-            cdef c_np.ndarray[c_np.int32_t, ndim=1] ret = np.zeros(rows, dtype=np.int32)
-        ELSE:
-            ret = np.zeros(rows, dtype=np.int32)
+        cdef c_np.ndarray[c_np.int32_t, ndim=1] ret = np.zeros(rows, dtype=np.int32)
+
         for i in range(rows):
             if is_ndarray:
                 ndarray_to_datum(X, i, d, cache)
