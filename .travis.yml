@@ -16,9 +16,6 @@ matrix:
       - VERSION=7
     - env:
       - DIST=ubuntu
-      - VERSION=12.04
-    - env:
-      - DIST=ubuntu
       - VERSION=14.04
     - env:
       - DIST=ubuntu
@@ -36,9 +33,7 @@ before_install:
         docker exec test rpm -Uvh http://download.jubat.us/yum/rhel/7/stable/x86_64/jubatus-release-7-2.el7.x86_64.rpm;
       fi;
     elif [ "$DIST" == "ubuntu" ]; then
-      if [ "$VERSION" == "12.04" ]; then
-        docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/precise binary/' > /etc/apt/sources.list.d/jubatus.list";
-      elif [ "$VERSION" == "14.04" ]; then
+      if [ "$VERSION" == "14.04" ]; then
         docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/trusty binary/' >  /etc/apt/sources.list.d/jubatus.list";
       elif [ "$VERSION" == "16.04" ]; then
         docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/xenial binary/' >  /etc/apt/sources.list.d/jubatus.list";
@@ -75,7 +70,7 @@ install:
         docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install && ldconfig";
       elif [ "$DIST" == "ubuntu" ]; then
         docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install";
-      fi
+      fi;
     fi
 
 script:
