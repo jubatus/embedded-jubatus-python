@@ -16,9 +16,6 @@ matrix:
       - VERSION=7
     - env:
       - DIST=ubuntu
-      - VERSION=12.04
-    - env:
-      - DIST=ubuntu
       - VERSION=14.04
     - env:
       - DIST=ubuntu
@@ -36,9 +33,7 @@ before_install:
         docker exec test rpm -Uvh http://download.jubat.us/yum/rhel/7/stable/x86_64/jubatus-release-7-2.el7.x86_64.rpm;
       fi;
     elif [ "$DIST" == "ubuntu" ]; then
-      if [ "$VERSION" == "12.04" ]; then
-        docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/precise binary/' > /etc/apt/sources.list.d/jubatus.list";
-      elif [ "$VERSION" == "14.04" ]; then
+      if [ "$VERSION" == "14.04" ]; then
         docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/trusty binary/' >  /etc/apt/sources.list.d/jubatus.list";
       elif [ "$VERSION" == "16.04" ]; then
         docker exec test sh -c "echo 'deb http://download.jubat.us/apt/ubuntu/xenial binary/' >  /etc/apt/sources.list.d/jubatus.list";
@@ -48,10 +43,15 @@ before_install:
 install:
   - if [ "$DIST" == "centos" ]; then
       docker exec test yum -y install gcc-c++ python-devel epel-release;
+      if [ $VERSION -eq 6 ]; then
+        docker exec test yum -y install centos-release-scl-rh;
+        docker exec test yum -y install python27 python27-python-pip;
+      else
+        docker exec test yum -y install python-pip;
+      fi;
       if [ "$TRAVIS_BRANCH" == "master" ]; then
         docker exec test yum -y install jubatus-core-devel;
       fi;
-      docker exec test yum -y install python-pip;
     fi
   - if [ "$DIST" == "ubuntu" ]; then
       docker exec test apt-get -y update;
@@ -60,7 +60,11 @@ install:
         docker exec test apt-get --force-yes -y install jubatus;
       fi;
     fi
-  - docker exec test pip install -U pip setuptools;
+  - if [ "$DIST" == "centos" ] && [ $VERSION -eq 6 ]; then
+      docker exec test /usr/bin/scl enable python27 -- pip install --upgrade pip setuptools;
+    else
+      docker exec test pip install --upgrade pip setuptools;
+    fi
   - if [ "$TRAVIS_BRANCH" != "master" ]; then
       if [ "$DIST" == "centos" ]; then
         docker exec test yum -y install git bzip2 msgpack-devel-0.5.9;
@@ -72,12 +76,16 @@ install:
         docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install && ldconfig";
       elif [ "$DIST" == "ubuntu" ]; then
         docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install";
-      fi
+      fi;
     fi
 
 script:
   - if [ "$DIST" == "centos" ]; then
-      docker exec -t test bash -ic "pip install -e . && pip install scipy && python ./setup.py test";
+      if [ $VERSION -eq 6 ]; then
+        docker exec -t test /usr/bin/scl enable python27 -- bash -ic "pip install -e . && pip install scipy && python ./setup.py test";
+      else
+        docker exec -t test bash -ic "pip install -e . && pip install scipy && python ./setup.py test";
+      fi;
     elif [ "$DIST" == "ubuntu" ]; then
       docker exec -t test bash -ic "source /opt/jubatus/profile; pip install -e . && pip install scipy && python ./setup.py test";
     fi
