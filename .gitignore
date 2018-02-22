@@ -1,6 +1,5 @@
 __pycache__
 /src/embedded_jubatus.cpp
-/src/defs.pyx
 /build
 /dist
 /*.egg-info
