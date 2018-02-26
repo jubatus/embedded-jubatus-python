@@ -66,3 +66,25 @@ class TestAnomaly(unittest.TestCase):
         self.assertEqual(set(['0', '1', '2', '3']), set(x.get_all_rows()))
         self.assertEqual(p.score, x.update(p.id, Datum({'x': 0.2})))
         self.assertEqual(p.score, x.overwrite(p.id, Datum({'x': 0.2})))
+
+    def test_add_bulk(self):
+        x = Anomaly(CONFIG)
+        data = [
+            Datum({'x': 0.0999}),
+            Datum({'x': 0.1}),
+            Datum({'x': -0.1009}),
+            Datum({'x': -0.101}),
+            Datum({'x': 0.1011}),
+        ]
+        ret = x.add_bulk(data)
+        self.assertEqual(['0', '1', '2', '3', '4'], ret)
+        self.assertEqual(set(ret), set(x.get_all_rows()))
+
+        try:
+            import numpy as np
+        except Exception:
+            return
+        x = Anomaly(CONFIG)
+        x.fit(np.array([[d.num_values[0][1]] for d in data]))
+        self.assertEqual(['0', '1', '2', '3', '4'], ret)
+        self.assertEqual(set(ret), set(x.get_all_rows()))
