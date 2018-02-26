@@ -3,3 +3,4 @@ include LICENSE
 include VERSION
 include src/*
 include tests/*
+include requirements.txt
