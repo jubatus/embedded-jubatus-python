@@ -5,26 +5,11 @@ import tempfile
 import unittest
 import sys
 
-try:
-    from unittest import skipIf
-except Exception:
-    def skipIf(condition, reason):
-        def dummy(*args, **kwargs):
-            pass
-        if condition:
-            return lambda _: dummy
-        return lambda x: x
-
 from embedded_jubatus import Classifier
 from jubatus.classifier.types import EstimateResult
 from jubatus.classifier.types import LabeledDatum
 from jubatus.common import Datum
-
-try:
-    import numpy as np
-    NUMPY = True
-except Exception:
-    NUMPY = False
+import numpy as np
 
 
 CONFIG = {
@@ -152,7 +137,6 @@ class TestClassifier(unittest.TestCase):
         finally:
             _remove_model()
 
-    @skipIf(not NUMPY, 'numpy cannot import')
     def test_numpy(self):
         x = Classifier(CONFIG)
         tdata = np.array([
@@ -188,7 +172,6 @@ class TestClassifier(unittest.TestCase):
         self.assertEqual(1, y[0])
         self.assertEqual(0, y[1])
 
-    @skipIf(not NUMPY, 'numpy cannot import')
     def test_sparse(self):
         from scipy.sparse import csr_matrix
 
@@ -214,7 +197,6 @@ class TestClassifier(unittest.TestCase):
         self.assertTrue(y[0] > 0)
         self.assertTrue(y[1] < 0)
 
-    @skipIf(not NUMPY, 'numpy cannot import')
     def test_multilabel(self):
         x = Classifier(CONFIG)
         tdata = np.array([

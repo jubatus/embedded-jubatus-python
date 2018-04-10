@@ -4,14 +4,7 @@ import unittest
 from embedded_jubatus import Regression
 from jubatus.common import Datum
 from jubatus.regression.types import ScoredDatum
-
-from .test_classifier import skipIf
-
-try:
-    import numpy as np
-    NUMPY = True
-except Exception:
-    NUMPY = False
+import numpy as np
 
 
 CONFIG = {
@@ -75,7 +68,6 @@ class TestRegression(unittest.TestCase):
             Datum({'x': 1.5}),
         ]))
 
-    @skipIf(not NUMPY, 'numpy cannot import')
     def test_numpy(self):
         X = np.array([[1.0], [2.0], [4.0], [8.0], [16.0]])
         y = np.array([0.0, 1.0, 2.0, 3.0, 4.0])
