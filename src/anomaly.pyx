@@ -69,16 +69,10 @@ cdef class Anomaly(_JubatusBase):
         self.partial_fit(X)
 
     def partial_fit(self, X):
-        import numpy as np
         cdef datum d
-        cdef int i
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        cdef rows
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef unsigned int i, rows = X.shape[0]
         cdef vector[pair[string, datum]] vec
-        if not (is_ndarray or is_csr):
-            raise ValueError
-        rows = X.shape[0]
         allocate_number_string(X.shape[1])
         if is_ndarray:
             for i in range(rows):
@@ -95,13 +89,8 @@ cdef class Anomaly(_JubatusBase):
     def decision_function(self, X):
         import numpy as np
         cdef datum d
-        cdef int i
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        cdef rows
-        if not (is_ndarray or is_csr):
-            raise ValueError
-        rows = X.shape[0]
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef unsigned int i, rows = X.shape[0]
         allocate_number_string(X.shape[1])
         y = np.zeros((rows,))
         if is_ndarray:

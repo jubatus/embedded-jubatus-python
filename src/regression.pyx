@@ -61,17 +61,12 @@ cdef class Regression(_JubatusBase):
         return self.partial_fit(X, y)
 
     def partial_fit(self, X, y):
-        import numpy as np
-        if len(X.shape) != 2 or len(y.shape) != 1 or X.shape[0] != y.shape[0]:
-            raise ValueError('invalid shape')
-        cdef int i
         cdef double score
-        cdef rows = X.shape[0]
         cdef datum d
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef unsigned int i, rows = X.shape[0]
+        if len(y.shape) != 1 or X.shape[0] != y.shape[0]:
+            raise ValueError('invalid shape')
         allocate_number_string(X.shape[1])
         for i in range(rows):
             if is_ndarray:
@@ -86,15 +81,9 @@ cdef class Regression(_JubatusBase):
 
     def predict(self, X):
         import numpy as np
-        if len(X.shape) != 2:
-            raise ValueError('invalid shape')
-        cdef int i
-        cdef rows = X.shape[0]
         cdef datum d
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef unsigned int i, rows = X.shape[0]
         allocate_number_string(X.shape[1])
         ret = np.zeros([rows], dtype=np.float32)
         for i in range(rows):

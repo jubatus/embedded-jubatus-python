@@ -87,15 +87,13 @@ cdef class Classifier(_JubatusBase):
 
     def partial_fit(self, X, y):
         import numpy as np
-        if len(X.shape) != 2 or len(y.shape) != 1 or X.shape[0] != y.shape[0]:
-            raise ValueError('invalid shape')
-        cdef int i, j, max_label
-        cdef rows = X.shape[0]
+        cdef unsigned int max_label, i, rows = X.shape[0]
         cdef datum d
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        if len(y.shape) != 1 or X.shape[0] != y.shape[0]:
+            raise ValueError('invalid shape')
+        if y.dtype.kind not in ('i', 'u'):
+            raise ValueError('invalid y.dtype')
         if self._classes is None:
             self._classes = []
         max_label = max(len(self._classes) - 1, max(y))
@@ -108,24 +106,19 @@ cdef class Classifier(_JubatusBase):
                              <const PyObject*>X.indices,
                              <const PyObject*>X.indptr, i, d)
             self._handle.train(get_number_string_fast(y[i]), d)
-        for j in range(len(self._classes), max_label + 1):
-            self._classes.append(j)
+        for i in range(len(self._classes), max_label + 1):
+            self._classes.append(i)
         return self
 
     def decision_function(self, X):
         import numpy as np
-        if len(X.shape) != 2:
-            raise ValueError('invalid X.shape')
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
-        cdef int i, k
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef int k
         cdef size_t j
         cdef double score
         cdef datum d
         cdef vector[classify_result_elem] r
-        cdef int rows = X.shape[0]
+        cdef unsigned int i, rows = X.shape[0]
         ret = None
         allocate_number_string(X.shape[1])
         for i in range(rows):
@@ -161,18 +154,12 @@ cdef class Classifier(_JubatusBase):
 
     def predict(self, X):
         import numpy as np
-        if len(X.shape) != 2:
-            raise ValueError('invalid X.shape')
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
-        cdef int i
+        cdef int is_ndarray = check_ndarray_csr_type(X)
         cdef size_t j, max_j
         cdef double max_score
         cdef datum d
         cdef vector[classify_result_elem] r
-        cdef int rows = X.shape[0]
+        cdef unsigned int i, rows = X.shape[0]
         cdef c_np.ndarray[c_np.int32_t, ndim=1] ret = np.zeros(rows, dtype=np.int32)
         allocate_number_string(X.shape[1])
         for i in range(rows):

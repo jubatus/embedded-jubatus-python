@@ -52,3 +52,20 @@ cdef preset_query_py2native(query, preset_query& q):
     for x in query.node_query:
         q.node_query.push_back(pair[string, string](
             x.from_id.encode('ascii'), x.to_id.encode('ascii')))
+
+def check_ndarray_csr_type(X):
+    import numpy as np
+    cdef int is_ndarray = isinstance(X, np.ndarray)
+    cdef int is_csr = (type(X).__name__ == 'csr_matrix')
+    if not (is_ndarray or is_csr):
+        raise ValueError
+    if len(X.shape) != 2:
+        raise ValueError('invalid X.shape')
+    if X.dtype != np.float64:
+        raise ValueError('X.dtype must be float64')
+    if is_csr:
+        if X.indices.dtype != np.int32:
+            raise ValueError('X.indices.dtype must be int32')
+        if X.indptr.dtype != np.int32:
+            raise ValueError('X.indptr.dtype must be int32')
+    return is_ndarray
