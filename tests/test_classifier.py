@@ -177,6 +177,17 @@ class TestClassifier(unittest.TestCase):
         self.assertTrue(y[1] < 0)
         self.assertEqual([0, 1], sorted(x.classes_))
 
+        model = x.save_bytes()
+        x = Classifier(CONFIG)
+        x.load_bytes(model)
+        self.assertEqual([0, 1], sorted(x.classes_))
+        y = x.predict(np.array([
+            [1, 0, 0],
+            [0, 1, 0],
+        ], dtype='f8'))
+        self.assertEqual(1, y[0])
+        self.assertEqual(0, y[1])
+
     @skipIf(not NUMPY, 'numpy cannot import')
     def test_sparse(self):
         from scipy.sparse import csr_matrix
