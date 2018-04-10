@@ -71,7 +71,7 @@ cdef class Anomaly(_JubatusBase):
     def partial_fit(self, X):
         import numpy as np
         cdef datum d
-        cdef vector[string] cache
+        cdef int i
         cdef int is_ndarray = isinstance(X, np.ndarray)
         cdef int is_csr = (type(X).__name__ == 'csr_matrix')
         cdef rows
@@ -79,33 +79,39 @@ cdef class Anomaly(_JubatusBase):
         if not (is_ndarray or is_csr):
             raise ValueError
         rows = X.shape[0]
+        allocate_number_string(X.shape[1])
         if is_ndarray:
             for i in range(rows):
-                ndarray_to_datum(X, i, d, cache)
+                ndarray_to_datum(<const PyObject*>X, i, d)
                 vec.push_back(pair[string, datum](self._handle.get_next_id(), d))
         else:
             for i in range(rows):
-                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+                csr_to_datum(<const PyObject*>X.data,
+                             <const PyObject*>X.indices,
+                             <const PyObject*>X.indptr, i, d)
                 vec.push_back(pair[string, datum](self._handle.get_next_id(), d))
         self._handle.add_bulk(vec)
 
     def decision_function(self, X):
         import numpy as np
         cdef datum d
-        cdef vector[string] cache
+        cdef int i
         cdef int is_ndarray = isinstance(X, np.ndarray)
         cdef int is_csr = (type(X).__name__ == 'csr_matrix')
         cdef rows
         if not (is_ndarray or is_csr):
             raise ValueError
         rows = X.shape[0]
+        allocate_number_string(X.shape[1])
         y = np.zeros((rows,))
         if is_ndarray:
             for i in range(rows):
-                ndarray_to_datum(X, i, d, cache)
+                ndarray_to_datum(<const PyObject*>X, i, d)
                 y[i] = self._handle.calc_score(d)
         else:
             for i in range(rows):
-                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+                csr_to_datum(<const PyObject*>X.data,
+                             <const PyObject*>X.indices,
+                             <const PyObject*>X.indptr, i, d)
                 y[i] = self._handle.calc_score(d)
         return y

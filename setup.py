@@ -62,7 +62,8 @@ def _setup():
                 [
                     'src/embedded_jubatus.pyx',
                     'src/_wrapper.cpp',
-                    'src/_model.cpp'
+                    'src/_model.cpp',
+                    'src/_helper.cpp'
                 ],
                 include_dirs=include_dirs,
                 libraries=['jubatus_core', 'jubatus_util_text'],

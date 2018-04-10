@@ -5,6 +5,7 @@ from libcpp.pair cimport pair
 from libcpp.map cimport map
 from cython.operator cimport dereference
 from cython.operator cimport preincrement
+from cpython.ref cimport PyObject
 
 cimport numpy as c_np
 
@@ -33,6 +34,11 @@ from _wrapper cimport node_info
 from _wrapper cimport edge_info
 from _wrapper cimport preset_query
 from _wrapper cimport indexed_point
+from _helper cimport allocate_number_string
+from _helper cimport get_number_string
+from _helper cimport get_number_string_fast
+from _helper cimport ndarray_to_datum
+from _helper cimport csr_to_datum
 
 from jubatus.anomaly.types import IdWithScore as AnomalyIdWithScore
 from jubatus.bandit.types import ArmInfo
