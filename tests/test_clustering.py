@@ -18,6 +18,7 @@ CONFIG = {
     'compressor_parameter': {
         'bucket_size': 6,
     },
+    'distance': 'euclidean',
     'converter': {
         'num_filter_types': {},
         'num_filter_rules': [],
@@ -50,9 +51,23 @@ class TestClustering(unittest.TestCase):
                           {'method': 'hoge', 'converter': {},
                            'compressor_method': 'hoge',
                            'compressor_parameter': {}})
+        self.assertRaises(RuntimeError, Clustering,
+                          {'method': 'hoge', 'converter': {},
+                           'compressor_method': 'hoge',
+                           'compressor_parameter': {},
+                           'distance': 'hoge'})
         invalid_config = dict(CONFIG)
         invalid_config['method'] = 'hoge'
         self.assertRaises(RuntimeError, Clustering, invalid_config)
+
+    def test_default_configs(self):
+        omitted_config = dict(CONFIG)
+        del omitted_config['distance']
+        try:
+            x = Clustering(omitted_config)
+        except:
+            self.fail()
+        self.assertTrue(True)
 
     def test(self):
         x = Clustering(CONFIG)

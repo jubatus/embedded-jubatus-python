@@ -47,7 +47,8 @@ void parse_config(const std::string& config, std::string *method,
 void parse_clustering_config(const std::string& config, std::string *method,
                              jsonconfig::config *params, converter_config *fvconv_config,
                              std::string *compressor_method,
-                             jsonconfig::config *compressor_params) {
+                             jsonconfig::config *compressor_params,
+                             std::string *distance) {
     using jubatus::util::text::json::json;
     using jubatus::util::text::json::json_string;
     using jubatus::util::text::json::from_json;
@@ -63,6 +64,14 @@ void parse_clustering_config(const std::string& config, std::string *method,
         throw std::invalid_argument("invalid config (compressor_method)");
     compressor_method->assign(method_value->get());
     *compressor_params = jsonconfig::config(config_json["compressor_parameter"]);
+    method_value = (json_string*)config_json["distance"].get();
+    if (method_value && method_value->type() == json::Null) {
+        distance->assign("euclidean");
+    } else if (method_value && method_value->type() == json::String) {
+        distance->assign(method_value->get());
+    } else {
+        throw std::invalid_argument("invalid config (distance)");
+    }
 }
 
 _Classifier::_Classifier(const std::string& config) {
@@ -271,15 +280,17 @@ _Clustering::_Clustering(const std::string& config) {
     using jubatus::core::clustering::clustering;
     using jubatus::core::clustering::clustering_factory;
 
-    std::string method, compressor_method, my_id;
+    std::string method, compressor_method, distance, my_id;
     jsonconfig::config params, compressor_params;
     converter_config fvconv_config;
     parse_clustering_config(config, &method, &params, &fvconv_config,
-                            &compressor_method, &compressor_params);
+                            &compressor_method, &compressor_params,
+                            &distance);
     handle.reset(new jubatus::core::driver::clustering(
         clustering_factory::create(my_id,
                                    method,
                                    compressor_method,
+                                   distance,
                                    params,
                                    compressor_params),
         make_fv_converter(fvconv_config, &_so_factory)));
