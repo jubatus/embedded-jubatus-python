@@ -4,6 +4,7 @@ import unittest
 from embedded_jubatus import Anomaly
 from jubatus.anomaly.types import IdWithScore
 from jubatus.common import Datum
+import numpy as np
 
 
 CONFIG = {
@@ -80,10 +81,6 @@ class TestAnomaly(unittest.TestCase):
         self.assertEqual(['0', '1', '2', '3', '4'], ret)
         self.assertEqual(set(ret), set(x.get_all_rows()))
 
-        try:
-            import numpy as np
-        except Exception:
-            return
         x = Anomaly(CONFIG)
         x.fit(np.array([[d.num_values[0][1]] for d in data]))
         self.assertEqual(['0', '1', '2', '3', '4'], ret)

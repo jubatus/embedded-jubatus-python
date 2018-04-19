@@ -21,7 +21,18 @@ cdef class Classifier(_JubatusBase):
         return self._handle.dump(self._type, self._model_ver)
 
     def load_bytes(self, x):
-        return self._handle.load(x, self._type, self._model_ver)
+        cdef vector[pair[string, uint64_t]] labels
+        ret = self._handle.load(x, self._type, self._model_ver)
+        labels = self._handle.get_labels()
+        tmp = set(range(len(labels)))
+        for pair in labels:
+            try:
+                tmp.remove(int(pair.first.decode('ascii')))
+            except Exception:
+                break
+        if len(tmp) == 0:
+            self._classes = list(range(len(labels)))
+        return ret
 
     def clear(self):
         self._handle.clear()
