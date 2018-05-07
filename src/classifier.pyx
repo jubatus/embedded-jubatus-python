@@ -98,53 +98,47 @@ cdef class Classifier(_JubatusBase):
 
     def partial_fit(self, X, y):
         import numpy as np
-        if len(X.shape) != 2 or len(y.shape) != 1 or X.shape[0] != y.shape[0]:
-            raise ValueError('invalid shape')
-        cdef int i, j, max_label
-        cdef rows = X.shape[0]
+        cdef unsigned int max_label, i, rows = X.shape[0]
         cdef datum d
-        cdef vector[string] cache
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        if len(y.shape) != 1 or X.shape[0] != y.shape[0]:
+            raise ValueError('invalid shape')
+        if y.dtype.kind not in ('i', 'u'):
+            raise ValueError('invalid y.dtype')
         if self._classes is None:
             self._classes = []
-        max_label = len(self._classes) - 1
+        max_label = max(len(self._classes) - 1, max(y))
+        allocate_number_string(max(X.shape[1], max_label))
         for i in range(rows):
             if is_ndarray:
-                ndarray_to_datum(X, i, d, cache)
+                ndarray_to_datum(<const PyObject*>X, i, d)
             else:
-                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
-            for j in range(cache.size(), y[i] + 1):
-                cache.push_back(lexical_cast[string, int](j))
-            if max_label < y[i]:
-                max_label = y[i]
-            self._handle.train(cache[y[i]], d)
-        for j in range(len(self._classes), max_label + 1):
-            self._classes.append(j)
+                csr_to_datum(<const PyObject*>X.data,
+                             <const PyObject*>X.indices,
+                             <const PyObject*>X.indptr, i, d)
+            self._handle.train(get_number_string_fast(y[i]), d)
+        for i in range(len(self._classes), max_label + 1):
+            self._classes.append(i)
         return self
 
     def decision_function(self, X):
         import numpy as np
-        if len(X.shape) != 2:
-            raise ValueError('invalid X.shape')
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
-        cdef int i, j, k
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef int k
+        cdef size_t j
         cdef double score
         cdef datum d
-        cdef vector[string] cache
         cdef vector[classify_result_elem] r
-        cdef int rows = X.shape[0]
+        cdef unsigned int i, rows = X.shape[0]
         ret = None
+        allocate_number_string(X.shape[1])
         for i in range(rows):
             if is_ndarray:
-                ndarray_to_datum(X, i, d, cache)
+                ndarray_to_datum(<const PyObject*>X, i, d)
             else:
-                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+                csr_to_datum(<const PyObject*>X.data,
+                             <const PyObject*>X.indices,
+                             <const PyObject*>X.indptr, i, d)
             r = self._handle.classify(d)
             if r.size() == 0:
                 return np.zeros(rows)
@@ -171,25 +165,21 @@ cdef class Classifier(_JubatusBase):
 
     def predict(self, X):
         import numpy as np
-        if len(X.shape) != 2:
-            raise ValueError('invalid X.shape')
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
-        cdef int i, j, max_j
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef size_t j, max_j
         cdef double max_score
         cdef datum d
-        cdef vector[string] cache
         cdef vector[classify_result_elem] r
-        cdef int rows = X.shape[0]
+        cdef unsigned int i, rows = X.shape[0]
         cdef c_np.ndarray[c_np.int32_t, ndim=1] ret = np.zeros(rows, dtype=np.int32)
-
+        allocate_number_string(X.shape[1])
         for i in range(rows):
             if is_ndarray:
-                ndarray_to_datum(X, i, d, cache)
+                ndarray_to_datum(<const PyObject*>X, i, d)
             else:
-                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+                csr_to_datum(<const PyObject*>X.data,
+                             <const PyObject*>X.indices,
+                             <const PyObject*>X.indptr, i, d)
             r = self._handle.classify(d)
             if r.size() == 0:
                 break

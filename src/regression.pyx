@@ -61,44 +61,37 @@ cdef class Regression(_JubatusBase):
         return self.partial_fit(X, y)
 
     def partial_fit(self, X, y):
-        import numpy as np
-        if len(X.shape) != 2 or len(y.shape) != 1 or X.shape[0] != y.shape[0]:
-            raise ValueError('invalid shape')
-        cdef int i
         cdef double score
-        cdef rows = X.shape[0]
         cdef datum d
-        cdef vector[string] cache
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef unsigned int i, rows = X.shape[0]
+        if len(y.shape) != 1 or X.shape[0] != y.shape[0]:
+            raise ValueError('invalid shape')
+        allocate_number_string(X.shape[1])
         for i in range(rows):
             if is_ndarray:
-                ndarray_to_datum(X, i, d, cache)
+                ndarray_to_datum(<const PyObject*>X, i, d)
             else:
-                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+                csr_to_datum(<const PyObject*>X.data,
+                             <const PyObject*>X.indices,
+                             <const PyObject*>X.indptr, i, d)
             score = y[i]
             self._handle.train(score, d)
         return self
 
     def predict(self, X):
         import numpy as np
-        if len(X.shape) != 2:
-            raise ValueError('invalid shape')
-        cdef int i
-        cdef rows = X.shape[0]
         cdef datum d
-        cdef vector[string] cache
-        cdef int is_ndarray = isinstance(X, np.ndarray)
-        cdef int is_csr = (type(X).__name__ == 'csr_matrix')
-        if not (is_ndarray or is_csr):
-            raise ValueError
+        cdef int is_ndarray = check_ndarray_csr_type(X)
+        cdef unsigned int i, rows = X.shape[0]
+        allocate_number_string(X.shape[1])
         ret = np.zeros([rows], dtype=np.float32)
         for i in range(rows):
             if is_ndarray:
-                ndarray_to_datum(X, i, d, cache)
+                ndarray_to_datum(<const PyObject*>X, i, d)
             else:
-                csr_to_datum(X.data, X.indices, X.indptr, i, d, cache)
+                csr_to_datum(<const PyObject*>X.data,
+                             <const PyObject*>X.indices,
+                             <const PyObject*>X.indptr, i, d)
             ret[i] = self._handle.estimate(d)
         return ret
