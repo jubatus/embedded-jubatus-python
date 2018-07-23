@@ -5,7 +5,7 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.map cimport map
 
-ctypedef vector[pair[string, float]] sfv_t
+ctypedef vector[pair[string, double]] sfv_t
 ctypedef map[string, string] prop_t
 ctypedef uint64_t edge_id_t
 ctypedef uint64_t node_id_t
@@ -25,8 +25,8 @@ cdef extern from '_wrapper.h' nogil:
 
     cdef cppclass _Regression:
         _Regression(const string& config) except +
-        void train(float score, const datum& d) except +
-        float estimate(const datum& d) except +
+        void train(double score, const datum& d) except +
+        double estimate(const datum& d) except +
         string dump(const string& type, uint64_t ver) except +
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
@@ -38,12 +38,12 @@ cdef extern from '_wrapper.h' nogil:
         void update_row(const string& id, const datum& d) except +
         datum complete_row_from_id(const string& id) except +
         datum complete_row_from_datum(const datum& d) except +
-        vector[pair[string, float]] similar_row_from_id(const string& id, size_t ret_num) except +
-        vector[pair[string, float]] similar_row_from_datum(const datum& d, size_t ret_num) except +
+        vector[pair[string, double]] similar_row_from_id(const string& id, size_t ret_num) except +
+        vector[pair[string, double]] similar_row_from_datum(const datum& d, size_t ret_num) except +
         datum decode_row(const string& id) except +
         vector[string] get_all_rows() except +
-        float calc_similarity(const datum& l, const datum& r) except +
-        float calc_l2norm(const datum& d) except +
+        double calc_similarity(const datum& l, const datum& r) except +
+        double calc_l2norm(const datum& d) except +
         string dump(const string& type, uint64_t ver) except +
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
@@ -52,10 +52,10 @@ cdef extern from '_wrapper.h' nogil:
     cdef cppclass _NearestNeighbor:
         _NearestNeighbor(const string& config) except +
         void set_row(const string& id, const datum& d) except +
-        vector[pair[string, float]] neighbor_row_from_id(const string& id, size_t size) except +
-        vector[pair[string, float]] neighbor_row_from_datum(const datum& d, size_t size) except +
-        vector[pair[string, float]] similar_row_from_id(const string& id, size_t size) except +
-        vector[pair[string, float]] similar_row_from_datum(const datum& d, size_t size) except +
+        vector[pair[string, double]] neighbor_row_from_id(const string& id, size_t size) except +
+        vector[pair[string, double]] neighbor_row_from_datum(const datum& d, size_t size) except +
+        vector[pair[string, double]] similar_row_from_id(const string& id, size_t size) except +
+        vector[pair[string, double]] similar_row_from_datum(const datum& d, size_t size) except +
         vector[string] get_all_rows() except +
         string dump(const string& type, uint64_t ver) except +
         void load(const string& data, const string& type, uint64_t ver) except +
@@ -65,11 +65,11 @@ cdef extern from '_wrapper.h' nogil:
     cdef cppclass _Anomaly:
         _Anomaly(const string& config) except +
         void clear_row(const string& id) except +
-        pair[string, float] add(const datum& d) except +
+        pair[string, double] add(const datum& d) except +
         vector[string] add_bulk(const vector[pair[string, datum]]& data) except +
-        float update(const string& id, const datum& d) except +
-        float overwrite(const string& id, const datum& d) except +
-        float calc_score(const datum& d) except +
+        double update(const string& id, const datum& d) except +
+        double overwrite(const string& id, const datum& d) except +
+        double calc_score(const datum& d) except +
         vector[string] get_all_rows() except +
         string dump(const string& type, uint64_t ver) except +
         void load(const string& data, const string& type, uint64_t ver) except +
@@ -192,7 +192,7 @@ cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core:
 cdef extern from 'jubatus/core/classifier/classifier_type.hpp' namespace 'jubatus::core::classifier' nogil:
     cdef cppclass classify_result_elem:
         string label
-        float score
+        double score
 
 cdef extern from 'jubatus/core/burst/burst.hpp' namespace 'jubatus::core::burst' nogil:
     cdef cppclass keyword_params:

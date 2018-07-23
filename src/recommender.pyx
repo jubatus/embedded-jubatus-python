@@ -46,7 +46,7 @@ cdef class Recommender(_JubatusBase):
         return datum_native2py(d1)
 
     def similar_row_from_id(self, id_, size):
-        cdef vector[pair[string, float]] ret
+        cdef vector[pair[string, double]] ret
         ret = self._handle.similar_row_from_id(id_.encode('utf8'), size)
         return [
             RecommenderIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
@@ -54,7 +54,7 @@ cdef class Recommender(_JubatusBase):
         ]
 
     def similar_row_from_datum(self, row, size):
-        cdef vector[pair[string, float]] ret
+        cdef vector[pair[string, double]] ret
         cdef datum d
         datum_py2native(row, d)
         ret = self._handle.similar_row_from_datum(d, size)
