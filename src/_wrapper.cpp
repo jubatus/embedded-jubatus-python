@@ -127,11 +127,11 @@ _Regression::_Regression(const std::string& config) {
     this->config.assign(config);
 }
 
-void _Regression::train(float score, const datum& d) {
-    handle->train(std::pair<float, datum>(score, d));
+void _Regression::train(double score, const datum& d) {
+    handle->train(std::pair<double, datum>(score, d));
 }
 
-float _Regression::estimate(const datum& d) {
+double _Regression::estimate(const datum& d) {
     return handle->estimate(d);
 }
 
@@ -165,11 +165,11 @@ datum _Recommender::complete_row_from_datum(const datum& d) {
     return handle->complete_row_from_datum(d);
 }
 
-std::vector<std::pair<std::string, float> > _Recommender::similar_row_from_id(const std::string& id, size_t ret_num) {
+std::vector<std::pair<std::string, double> > _Recommender::similar_row_from_id(const std::string& id, size_t ret_num) {
     return handle->similar_row_from_id(id, ret_num);
 }
 
-std::vector<std::pair<std::string, float> > _Recommender::similar_row_from_datum(const datum& d, size_t ret_num) {
+std::vector<std::pair<std::string, double> > _Recommender::similar_row_from_datum(const datum& d, size_t ret_num) {
     return handle->similar_row_from_datum(d, ret_num);
 }
 
@@ -181,11 +181,11 @@ std::vector<std::string> _Recommender::get_all_rows() {
     return handle->get_all_rows();
 }
 
-float _Recommender::calc_similarity(const datum& l, const datum& r) {
+double _Recommender::calc_similarity(const datum& l, const datum& r) {
     return handle->calc_similarity(l, r);
 }
 
-float _Recommender::calc_l2norm(const datum& d) {
+double _Recommender::calc_l2norm(const datum& d) {
     return handle->calc_l2norm(d);
 }
 
@@ -252,7 +252,7 @@ void _Anomaly::clear_row(const std::string& id) {
     handle->clear_row(id);
 }
 
-std::pair<std::string, float> _Anomaly::add(const datum& d) {
+std::pair<std::string, double> _Anomaly::add(const datum& d) {
     return handle->add(get_next_id(), d);
 }
 
@@ -260,15 +260,15 @@ std::vector<std::string> _Anomaly::add_bulk(const std::vector<std::pair<std::str
     return handle->add_bulk(data);
 }
 
-float _Anomaly::update(const std::string& id, const datum& d) {
+double _Anomaly::update(const std::string& id, const datum& d) {
     return handle->update(id, d);
 }
 
-float _Anomaly::overwrite(const std::string &id, const datum& d) {
+double _Anomaly::overwrite(const std::string &id, const datum& d) {
     return handle->overwrite(id, d);
 }
 
-float _Anomaly::calc_score(const datum& d) const {
+double _Anomaly::calc_score(const datum& d) const {
     return handle->calc_score(d);
 }
 
