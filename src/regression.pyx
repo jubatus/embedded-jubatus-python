@@ -32,13 +32,13 @@ cdef class Regression(_JubatusBase):
                 return 0
             if isinstance(data[0], ScoredDatum):
                 for r in data:
-                    score = float(r.score)
+                    score = r.score
                     datum_py2native(r.data, d)
                     self._handle.train(score, d)
             elif isinstance(data[0], (tuple, list)):
                 for score, datum in data:
                     datum_py2native(datum, d)
-                    self._handle.train(float(score), d)
+                    self._handle.train(score, d)
             else:
                 raise ValueError
             return len(data)
@@ -94,7 +94,7 @@ cdef class Regression(_JubatusBase):
         cdef int is_csr = (type(X).__name__ == 'csr_matrix')
         if not (is_ndarray or is_csr):
             raise ValueError
-        ret = np.zeros([rows], dtype=np.float32)
+        ret = np.zeros([rows], dtype=np.float64)
         for i in range(rows):
             if is_ndarray:
                 ndarray_to_datum(X, i, d, cache)

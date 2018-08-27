@@ -32,7 +32,7 @@ cdef class NearestNeighbor(_JubatusBase):
         return True
 
     def neighbor_row_from_id(self, id_, size):
-        cdef vector[pair[string, float]] ret
+        cdef vector[pair[string, double]] ret
         ret = self._handle.neighbor_row_from_id(id_.encode('utf8'), size)
         return [
             NNIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
@@ -41,7 +41,7 @@ cdef class NearestNeighbor(_JubatusBase):
 
     def neighbor_row_from_datum(self, dat, size):
         cdef datum d
-        cdef vector[pair[string, float]] ret
+        cdef vector[pair[string, double]] ret
         datum_py2native(dat, d)
         ret = self._handle.neighbor_row_from_datum(d, size)
         return [
@@ -50,7 +50,7 @@ cdef class NearestNeighbor(_JubatusBase):
         ]
 
     def similar_row_from_id(self, id_, size):
-        cdef vector[pair[string, float]] ret
+        cdef vector[pair[string, double]] ret
         ret = self._handle.similar_row_from_id(id_.encode('utf8'), size)
         return [
             NNIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
@@ -59,7 +59,7 @@ cdef class NearestNeighbor(_JubatusBase):
 
     def similar_row_from_datum(self, dat, size):
         cdef datum d
-        cdef vector[pair[string, float]] ret
+        cdef vector[pair[string, double]] ret
         datum_py2native(dat, d)
         ret = self._handle.similar_row_from_datum(d, size)
         return [

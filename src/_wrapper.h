@@ -90,7 +90,7 @@ public:
     }
 };
 
-typedef std::vector<std::pair<std::string, float> > id_score_list_t;
+typedef std::vector<std::pair<std::string, double> > id_score_list_t;
 
 class _Classifier : public _Base<jubatus::core::driver::classifier> {
 public:
@@ -107,8 +107,8 @@ class _Regression : public _Base<jubatus::core::driver::regression> {
 public:
     _Regression(const std::string& config);
     ~_Regression() {}
-    void train(float score, const datum& d);
-    float estimate(const datum& d);
+    void train(double score, const datum& d);
+    double estimate(const datum& d);
 };
 
 class _Recommender : public _Base<jubatus::core::driver::recommender> {
@@ -123,8 +123,8 @@ public:
     id_score_list_t similar_row_from_datum(const datum& d, size_t ret_num);
     datum decode_row(const std::string& id);
     std::vector<std::string> get_all_rows();
-    float calc_similarity(const datum& l, const datum& r);
-    float calc_l2norm(const datum& d);
+    double calc_similarity(const datum& l, const datum& r);
+    double calc_l2norm(const datum& d);
 };
 
 class _NearestNeighbor : public _Base<jubatus::core::driver::nearest_neighbor> {
@@ -147,11 +147,11 @@ public:
     void load(const std::string& data, const std::string& type, uint64_t version);
 
     void clear_row(const std::string& id);
-    std::pair<std::string, float> add(const datum& d);
+    std::pair<std::string, double> add(const datum& d);
     std::vector<std::string> add_bulk(const std::vector<std::pair<std::string, datum> >& data);
-    float update(const std::string& id, const datum& d);
-    float overwrite(const std::string &id, const datum& d);
-    float calc_score(const datum& d) const;
+    double update(const std::string& id, const datum& d);
+    double overwrite(const std::string &id, const datum& d);
+    double calc_score(const datum& d) const;
     std::vector<std::string> get_all_rows() const;
     inline std::string get_next_id() { return jubatus::util::lang::lexical_cast<std::string>(idgen++); }
 };

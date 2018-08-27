@@ -31,7 +31,7 @@ cdef class Anomaly(_JubatusBase):
 
     def add(self, row):
         cdef datum d
-        cdef pair[string, float] r
+        cdef pair[string, double] r
         datum_py2native(row, d)
         r = self._handle.add(d)
         return AnomalyIdWithScore(r.first.decode('utf8'), r.second)
