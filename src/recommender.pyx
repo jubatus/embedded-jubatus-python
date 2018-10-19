@@ -53,11 +53,47 @@ cdef class Recommender(_JubatusBase):
             for i in range(ret.size())
         ]
 
+    def similar_row_from_id_and_score(self, id_, score):
+        cdef vector[pair[string, double]] ret
+        ret = self._handle.similar_row_from_id_and_score(id_.encode('utf8'), score)
+        return [
+            RecommenderIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            for i in range(ret.size())
+        ]
+
+    def similar_row_from_id_and_rate(self, id_, rate):
+        cdef vector[pair[string, double]] ret
+        ret = self._handle.similar_row_from_id_and_rate(id_.encode('utf8'), rate)
+        return [
+            RecommenderIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            for i in range(ret.size())
+        ]
+
     def similar_row_from_datum(self, row, size):
         cdef vector[pair[string, double]] ret
         cdef datum d
         datum_py2native(row, d)
         ret = self._handle.similar_row_from_datum(d, size)
+        return [
+            RecommenderIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            for i in range(ret.size())
+        ]
+
+    def similar_row_from_datum_and_score(self, row, score):
+        cdef vector[pair[string, double]] ret
+        cdef datum d
+        datum_py2native(row, d)
+        ret = self._handle.similar_row_from_datum_and_score(d, score)
+        return [
+            RecommenderIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
+            for i in range(ret.size())
+        ]
+
+    def similar_row_from_datum_and_rate(self, row, rate):
+        cdef vector[pair[string, double]] ret
+        cdef datum d
+        datum_py2native(row, d)
+        ret = self._handle.similar_row_from_datum_and_rate(d, rate)
         return [
             RecommenderIdWithScore(ret[i].first.decode('utf8'), ret[i].second)
             for i in range(ret.size())
