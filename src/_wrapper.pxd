@@ -39,7 +39,11 @@ cdef extern from '_wrapper.h' nogil:
         datum complete_row_from_id(const string& id) except +
         datum complete_row_from_datum(const datum& d) except +
         vector[pair[string, double]] similar_row_from_id(const string& id, size_t ret_num) except +
+        vector[pair[string, double]] similar_row_from_id_and_score(const string& id, double score) except +
+        vector[pair[string, double]] similar_row_from_id_and_rate(const string& id, float rate) except +
         vector[pair[string, double]] similar_row_from_datum(const datum& d, size_t ret_num) except +
+        vector[pair[string, double]] similar_row_from_datum_and_score(const datum& d, double score) except +
+        vector[pair[string, double]] similar_row_from_datum_and_rate(const datum& d, float rate) except +
         datum decode_row(const string& id) except +
         vector[string] get_all_rows() except +
         double calc_similarity(const datum& l, const datum& r) except +

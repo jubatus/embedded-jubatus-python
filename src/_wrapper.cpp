@@ -169,8 +169,24 @@ std::vector<std::pair<std::string, double> > _Recommender::similar_row_from_id(c
     return handle->similar_row_from_id(id, ret_num);
 }
 
+std::vector<std::pair<std::string, double> > _Recommender::similar_row_from_id_and_score(const std::string& id, double score) {
+    return handle->similar_row_from_id_and_score(id, score);
+}
+
+std::vector<std::pair<std::string, double> > _Recommender::similar_row_from_id_and_rate(const std::string& id, float rate) {
+    return handle->similar_row_from_id_and_rate(id, rate);
+}
+
 std::vector<std::pair<std::string, double> > _Recommender::similar_row_from_datum(const datum& d, size_t ret_num) {
     return handle->similar_row_from_datum(d, ret_num);
+}
+
+std::vector<std::pair<std::string, double> > _Recommender::similar_row_from_datum_and_score(const datum& d, double score) {
+    return handle->similar_row_from_datum_and_score(d, score);
+}
+
+std::vector<std::pair<std::string, double> > _Recommender::similar_row_from_datum_and_rate(const datum& d, float rate) {
+    return handle->similar_row_from_datum_and_rate(d, rate);
 }
 
 datum _Recommender::decode_row(const std::string& id) {
