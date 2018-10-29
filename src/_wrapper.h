@@ -120,7 +120,11 @@ public:
     datum complete_row_from_id(const std::string& id);
     datum complete_row_from_datum(const datum& d);
     id_score_list_t similar_row_from_id(const std::string& id, size_t ret_num);
+    id_score_list_t similar_row_from_id_and_score(const std::string& id, double score);
+    id_score_list_t similar_row_from_id_and_rate(const std::string& id, float rate);
     id_score_list_t similar_row_from_datum(const datum& d, size_t ret_num);
+    id_score_list_t similar_row_from_datum_and_score(const datum& d, double score);
+    id_score_list_t similar_row_from_datum_and_rate(const datum& d, float rate);
     datum decode_row(const std::string& id);
     std::vector<std::string> get_all_rows();
     double calc_similarity(const datum& l, const datum& r);
