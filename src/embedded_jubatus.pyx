@@ -95,16 +95,16 @@ cdef class _JubatusBase:
         raise RuntimeError
 
     def do_mix(self):
-        raise RuntimeError
+        return True
 
     def get_proxy_status(self):
         raise RuntimeError
 
     def get_name(self):
-        raise RuntimeError
+        return ''
 
     def set_name(self, new_name):
-        raise RuntimeError
+        raise RuntimeError('Unsupported')
 
     def get_client(self):
         raise RuntimeError
