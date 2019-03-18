@@ -53,3 +53,9 @@ class TestStat(unittest.TestCase):
         s.load_bytes(model)
         self.assertEqual(config, json.loads(s.get_config()))
         self.assertAlmostEqual(x_sum, s.sum('x'))
+
+        st = s.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st.keys()[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))

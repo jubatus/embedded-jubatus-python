@@ -89,3 +89,9 @@ class TestRecommender(unittest.TestCase):
         x.load_bytes(model)
         self.assertTrue(x.get_all_rows())
         _valid_result(x.complete_row_from_id('4'))
+
+        st = x.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st.keys()[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))

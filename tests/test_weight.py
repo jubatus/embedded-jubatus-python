@@ -56,3 +56,9 @@ class TestWeight(unittest.TestCase):
         self.assertEqual(CONFIG, json.loads(w.get_config()))
         r1 = dict([(x.key, x.value) for x in w.calc_weight(d)])
         self.assertEqual(r0, r1)
+
+        st = w.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st.keys()[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))

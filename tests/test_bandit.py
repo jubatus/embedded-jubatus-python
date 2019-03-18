@@ -64,3 +64,9 @@ class TestBandit(unittest.TestCase):
         info = x.get_arm_info(player)
         self.assertEqual(3, len(info))
         self.assertTrue(isinstance(info[keys[0]], ArmInfo))
+
+        st = x.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st.keys()[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))

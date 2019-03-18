@@ -83,3 +83,9 @@ class TestNearestNeighbor(unittest.TestCase):
         self.assertEqual(
             set(['a0', 'a1', 'a2', 'a3', 'b0', 'b1', 'b2', 'b3']),
             set(x.get_all_rows()))
+
+        st = x.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st.keys()[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))

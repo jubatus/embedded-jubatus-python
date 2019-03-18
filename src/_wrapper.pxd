@@ -6,6 +6,7 @@ from libcpp.pair cimport pair
 from libcpp.map cimport map
 
 ctypedef vector[pair[string, double]] sfv_t
+ctypedef map[string, map[string, string]] status_t
 ctypedef map[string, string] prop_t
 ctypedef uint64_t edge_id_t
 ctypedef uint64_t node_id_t
@@ -22,6 +23,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _Regression:
         _Regression(const string& config) except +
@@ -31,6 +33,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _Recommender:
         _Recommender(const string& config) except +
@@ -52,6 +55,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _NearestNeighbor:
         _NearestNeighbor(const string& config) except +
@@ -65,6 +69,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _Anomaly:
         _Anomaly(const string& config) except +
@@ -80,6 +85,7 @@ cdef extern from '_wrapper.h' nogil:
         string get_config() except +
         void clear() except +
         string get_next_id() except +
+        status_t get_status() except +
 
     cdef cppclass _Clustering:
         _Clustering(const string& config) except +
@@ -95,6 +101,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _Burst:
         cppclass Batch:
@@ -116,6 +123,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _Bandit:
         _Bandit(const string& config) except +
@@ -129,6 +137,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _Stat:
         _Stat(const string& config) except +
@@ -143,6 +152,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _Weight:
         _Weight(const string& config) except +
@@ -152,6 +162,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
     cdef cppclass _Graph:
         _Graph(const string& config) except +
@@ -186,6 +197,7 @@ cdef extern from '_wrapper.h' nogil:
         void load(const string& data, const string& type, uint64_t ver) except +
         string get_config() except +
         void clear() except +
+        status_t get_status() except +
 
 cdef extern from 'jubatus/core/fv_converter/datum.hpp' namespace 'jubatus::core::fv_converter' nogil:
     cdef cppclass datum:

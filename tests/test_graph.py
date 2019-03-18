@@ -63,3 +63,9 @@ class TestGraph(unittest.TestCase):
         self.assertEqual([n0, n1], g.get_shortest_path(
             ShortestPathQuery(n0, n1, 100, PresetQuery([], []))))
         self.assertEqual('4', g.create_node())
+
+        st = g.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st.keys()[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))

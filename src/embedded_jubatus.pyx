@@ -26,6 +26,7 @@ from _wrapper cimport keyword_params
 from _wrapper cimport keyword_with_params
 from _wrapper cimport lexical_cast
 from _wrapper cimport sfv_t
+from _wrapper cimport status_t
 from _wrapper cimport prop_t
 from _wrapper cimport node_id_t
 from _wrapper cimport edge_id_t
@@ -91,9 +92,6 @@ cdef class _JubatusBase:
             f.write(self.save_bytes())
         return {name: path}
 
-    def get_status(self):
-        raise RuntimeError
-
     def do_mix(self):
         return True
 
@@ -117,6 +115,7 @@ cdef class _JubatusBase:
         cfg, model = state
         self.__init__(json.loads(cfg))
         self.load_bytes(model)
+
 
 include 'types.pyx'
 include 'anomaly.pyx'

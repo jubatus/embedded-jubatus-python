@@ -82,3 +82,9 @@ class TestBurst(unittest.TestCase):
         ret = x.get_result_at('balse', 41)
         self.assertTrue(isinstance(ret, Window))
         self.assertTrue(isinstance(ret.batches[0], Batch))
+
+        st = x.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(st.keys()[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))

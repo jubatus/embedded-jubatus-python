@@ -65,6 +65,16 @@ cdef class Anomaly(_JubatusBase):
         cdef vector[string] ret = self._handle.get_all_rows()
         return [i.decode('ascii') for i in ret]
 
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }
+
     def fit(self, X):
         self.partial_fit(X)
 

@@ -125,3 +125,13 @@ cdef class Graph(_JubatusBase):
         e = self._handle.get_edge(edge_id)
         return Edge(props_native2py(e.p),
                     str(e.src), str(e.tgt))
+
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }
