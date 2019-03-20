@@ -81,6 +81,12 @@ class TestClassifier(unittest.TestCase):
             _test_classify(x)
             self.assertEqual(CONFIG, json.loads(x.get_config()))
 
+        st = x.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(list(st.keys())[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))
+
     def test_str(self):
         x = Classifier(CONFIG)
         self.assertEqual(2, x.train([

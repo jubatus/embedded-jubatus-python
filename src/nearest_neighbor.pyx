@@ -70,3 +70,13 @@ cdef class NearestNeighbor(_JubatusBase):
     def get_all_rows(self):
         cdef vector[string] ret = self._handle.get_all_rows()
         return [(<string>ret[i]).decode('utf8') for i in range(ret.size())]
+
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }

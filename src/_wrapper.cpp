@@ -113,6 +113,12 @@ bool _Classifier::delete_label(const std::string& target_label) {
     return handle->delete_label(target_label);
 }
 
+void _Classifier::get_status_(std::map<std::string, std::string>& status) const {
+    std::map<std::string, std::string> my_status;
+    handle->get_status(my_status);
+    status.insert(my_status.begin(), my_status.end());
+}
+
 _Regression::_Regression(const std::string& config) {
     using jubatus::core::driver::regression;
     using jubatus::core::regression::regression_factory;
@@ -133,6 +139,12 @@ void _Regression::train(double score, const datum& d) {
 
 double _Regression::estimate(const datum& d) {
     return handle->estimate(d);
+}
+
+void _Regression::get_status_(std::map<std::string, std::string>& status) const {
+    std::map<std::string, std::string> my_status;
+    handle->get_status(my_status);
+    status.insert(my_status.begin(), my_status.end());
 }
 
 _Recommender::_Recommender(const std::string& config) {
@@ -205,6 +217,10 @@ double _Recommender::calc_l2norm(const datum& d) {
     return handle->calc_l2norm(d);
 }
 
+void _Recommender::get_status_(std::map<std::string, std::string>& status) const {
+    // unimplemented
+}
+
 _NearestNeighbor::_NearestNeighbor(const std::string& config) {
     using jubatus::core::storage::column_table;
     using jubatus::core::driver::nearest_neighbor;
@@ -243,6 +259,12 @@ id_score_list_t _NearestNeighbor::similar_row_from_datum(const datum& d, size_t 
 
 std::vector<std::string> _NearestNeighbor::get_all_rows() {
     return handle->get_all_rows();
+}
+
+void _NearestNeighbor::get_status_(std::map<std::string, std::string>& status) const {
+    std::map<std::string, std::string> my_status;
+    status["data"] = lexical_cast<std::string>(handle->get_table()->dump_json());
+    status.insert(my_status.begin(), my_status.end());
 }
 
 _Anomaly::_Anomaly(const std::string& config) : idgen(0) {
@@ -290,6 +312,12 @@ double _Anomaly::calc_score(const datum& d) const {
 
 std::vector<std::string> _Anomaly::get_all_rows() const {
     return handle->get_all_rows();
+}
+
+void _Anomaly::get_status_(std::map<std::string, std::string>& status) const {
+    std::map<std::string, std::string> my_status;
+    handle->get_status(my_status);
+    status.insert(my_status.begin(), my_status.end());
 }
 
 _Clustering::_Clustering(const std::string& config) {
@@ -343,6 +371,10 @@ index_cluster_set _Clustering::get_core_members_light() const {
 
 index_cluster_unit _Clustering::get_nearest_members_light(const datum& d) const {
     return handle->get_nearest_members_light(d);
+}
+
+void _Clustering::get_status_(std::map<std::string, std::string>& status) const {
+    // unimplemented
 }
 
 _Burst::_Burst(const std::string& config) {
@@ -422,6 +454,10 @@ void _Burst::calculate_results() {
     handle->calculate_results();
 }
 
+void _Burst::get_status_(std::map<std::string, std::string>& status) const {
+    handle->get_status(status);
+}
+
 _Bandit::_Bandit(const std::string& config) {
     using jubatus::core::driver::bandit;
     std::string method;
@@ -459,6 +495,10 @@ std::map<std::string, jubatus::core::bandit::arm_info> _Bandit::get_arm_info(con
 
 bool _Bandit::reset(const std::string& player_id) {
     return handle->reset(player_id);
+}
+
+void _Bandit::get_status_(std::map<std::string, std::string>& status) const {
+    // unimplemented
 }
 
 struct stat_serv_config {
@@ -507,6 +547,10 @@ double _Stat::moment(const std::string& key, int degree, double center) const {
     return handle->moment(key, degree, center);
 }
 
+void _Stat::get_status_(std::map<std::string, std::string>& status) const {
+    status.insert(std::make_pair("storage", handle->get_model()->type()));
+}
+
 _Weight::_Weight(const std::string& config) {
     using jubatus::core::driver::weight;
     converter_config fvconv_config;
@@ -521,6 +565,10 @@ sfv_t _Weight::update(const datum& d) {
 
 sfv_t _Weight::calc_weight(const datum& d) const {
     return handle->calc_weight(d);
+}
+
+void _Weight::get_status_(std::map<std::string, std::string>& status) const {
+    handle->get_status(status);
 }
 
 struct graph_serv_config {
@@ -633,4 +681,10 @@ jubatus::core::graph::node_info _Graph::get_node(const std::string& node_id) con
 
 jubatus::core::graph::edge_info _Graph::get_edge(edge_id_t eid) const {
     return handle->get_edge(eid);
+}
+
+void _Graph::get_status_(std::map<std::string, std::string>& status) const {
+    std::map<std::string, std::string> my_status;
+    handle->get_model()->get_status(my_status);
+    status.insert(my_status.begin(), my_status.end());
 }

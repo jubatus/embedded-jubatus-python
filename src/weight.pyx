@@ -39,6 +39,16 @@ cdef class Weight(_JubatusBase):
         r = self._handle.calc_weight(d)
         return _to_features(r)
 
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }
+
 cdef _to_features(sfv_t& r):
     cdef int sz
     sz = r.size()

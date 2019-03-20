@@ -1,6 +1,10 @@
+#include <sys/types.h>
+#include <unistd.h>
+
 #include <string>
 
 #include <jubatus/util/lang/shared_ptr.h>
+#include <jubatus/util/system/time_util.h>
 #include <jubatus/util/text/json.h>
 #include <jubatus/core/fv_converter/datum.hpp>
 #include <jubatus/core/framework/stream_writer.hpp>
@@ -17,6 +21,8 @@
 #include <jubatus/core/driver/graph.hpp>
 
 using jubatus::util::lang::shared_ptr;
+using jubatus::util::system::time::clock_time;
+using jubatus::util::system::time::get_clock_time;
 using jubatus::core::common::sfv_t;
 using jubatus::core::fv_converter::datum;
 using jubatus::core::classifier::classify_result;
@@ -46,6 +52,7 @@ class _Base {
 protected:
     shared_ptr<T> handle;
     std::string config;
+    virtual void get_status_(std::map<std::string, std::string>& status) const = 0;
 public:
     _Base(): handle(), config() {}
     virtual ~_Base() {
@@ -88,6 +95,20 @@ public:
     void clear() {
         this->handle->clear();
     }
+
+    std::map<std::string, std::map<std::string, std::string> > get_status() {
+        std::map<std::string, std::map<std::string, std::string> > status;
+        std::map<std::string, std::string>& data = status["embedded"];
+
+        const clock_time ct = get_clock_time();
+        data["clock_time"] =
+            jubatus::util::lang::lexical_cast<std::string>(ct.sec);
+        data["pid"] = jubatus::util::lang::lexical_cast<std::string>(getpid());
+
+        this->get_status_(data);
+
+        return status;
+    }
 };
 
 typedef std::vector<std::pair<std::string, double> > id_score_list_t;
@@ -101,6 +122,8 @@ public:
     std::vector<std::pair<std::string, uint64_t> > get_labels();
     bool set_label(const std::string& new_label);
     bool delete_label(const std::string& target_label);
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Regression : public _Base<jubatus::core::driver::regression> {
@@ -109,6 +132,8 @@ public:
     ~_Regression() {}
     void train(double score, const datum& d);
     double estimate(const datum& d);
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Recommender : public _Base<jubatus::core::driver::recommender> {
@@ -129,6 +154,8 @@ public:
     std::vector<std::string> get_all_rows();
     double calc_similarity(const datum& l, const datum& r);
     double calc_l2norm(const datum& d);
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _NearestNeighbor : public _Base<jubatus::core::driver::nearest_neighbor> {
@@ -141,6 +168,8 @@ public:
     id_score_list_t similar_row_from_id(const std::string& id, size_t size);
     id_score_list_t similar_row_from_datum(const datum& d, size_t size);
     std::vector<std::string> get_all_rows();
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Anomaly : public _Base<jubatus::core::driver::anomaly> {
@@ -158,6 +187,8 @@ public:
     double calc_score(const datum& d) const;
     std::vector<std::string> get_all_rows() const;
     inline std::string get_next_id() { return jubatus::util::lang::lexical_cast<std::string>(idgen++); }
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Clustering : public _Base<jubatus::core::driver::clustering> {
@@ -172,6 +203,8 @@ public:
     cluster_unit get_nearest_members(const datum& d) const;
     index_cluster_set get_core_members_light() const;
     index_cluster_unit get_nearest_members_light(const datum& d) const;
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Burst : public _Base<jubatus::core::driver::burst> {
@@ -198,6 +231,8 @@ public:
     bool remove_keyword(const std::string& keyword);
     bool remove_all_keywords();
     void calculate_results();
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Bandit : public _Base<jubatus::core::driver::bandit> {
@@ -210,6 +245,8 @@ public:
     bool register_reward(const std::string& player_id, const std::string& arm_id, double reward);
     std::map<std::string, jubatus::core::bandit::arm_info> get_arm_info(const std::string& player_id) const;
     bool reset(const std::string& player_id);
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Stat : public _Base<jubatus::core::driver::stat> {
@@ -223,6 +260,8 @@ public:
     double min(const std::string& key) const;
     double entropy() const;
     double moment(const std::string& key, int degree, double center) const;
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Weight : public _Base<jubatus::core::driver::weight> {
@@ -231,6 +270,8 @@ public:
     ~_Weight() {}
     sfv_t update(const datum&);
     sfv_t calc_weight(const datum&) const;
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };
 
 class _Graph : public _Base<jubatus::core::driver::graph> {
@@ -268,4 +309,6 @@ public:
     void update_index();
     jubatus::core::graph::node_info get_node(const std::string& node_id) const;
     jubatus::core::graph::edge_info get_edge(edge_id_t eid) const;
+protected:
+    void get_status_(std::map<std::string, std::string>& status) const;
 };

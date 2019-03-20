@@ -87,6 +87,16 @@ cdef class Classifier(_JubatusBase):
     def delete_label(self, target_label):
         return self._handle.delete_label(target_label.encode('utf8'))
 
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }
+
     @property
     def classes_(self):
         return self._classes
