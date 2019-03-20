@@ -57,5 +57,5 @@ class TestStat(unittest.TestCase):
         st = s.get_status()
         self.assertTrue(isinstance(st, dict))
         self.assertEqual(len(st), 1)
-        self.assertEqual(st.keys()[0], 'embedded')
+        self.assertEqual(list(st.keys())[0], 'embedded')
         self.assertTrue(isinstance(st['embedded'], dict))
