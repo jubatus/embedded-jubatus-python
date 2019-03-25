@@ -56,6 +56,16 @@ cdef class Regression(_JubatusBase):
         else:
             raise ValueError
 
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }
+
     def fit(self, X, y):
         self.clear()
         return self.partial_fit(X, y)

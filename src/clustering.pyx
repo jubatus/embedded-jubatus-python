@@ -92,3 +92,13 @@ cdef class Clustering(_JubatusBase):
         for m in r:
             ret.append(WeightedIndex(m.first, m.second))
         return ret
+
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }

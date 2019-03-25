@@ -68,6 +68,12 @@ class TestAnomaly(unittest.TestCase):
         self.assertEqual(p.score, x.update(p.id, Datum({'x': 0.2})))
         self.assertEqual(p.score, x.overwrite(p.id, Datum({'x': 0.2})))
 
+        st = x.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(list(st.keys())[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))
+
     def test_add_bulk(self):
         x = Anomaly(CONFIG)
         data = [

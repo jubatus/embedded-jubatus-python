@@ -80,3 +80,13 @@ cdef class Burst(_JubatusBase):
 
     def remove_all_keywords(self):
         return self._handle.remove_all_keywords()
+
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }

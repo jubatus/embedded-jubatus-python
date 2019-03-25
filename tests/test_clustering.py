@@ -114,3 +114,9 @@ class TestClustering(unittest.TestCase):
         self.assertEqual(CONFIG, json.loads(x.get_config()))
         self.assertEqual(1, x.get_revision())
         self.assertEqual(len(centers), len(x.get_k_center()))
+
+        st = x.get_status()
+        self.assertTrue(isinstance(st, dict))
+        self.assertEqual(len(st), 1)
+        self.assertEqual(list(st.keys())[0], 'embedded')
+        self.assertTrue(isinstance(st['embedded'], dict))

@@ -46,3 +46,13 @@ cdef class Stat(_JubatusBase):
 
     def moment(self, key, degree, center):
         return self._handle.moment(key.encode('utf8'), degree, center)
+
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }

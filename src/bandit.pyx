@@ -48,3 +48,13 @@ cdef class Bandit(_JubatusBase):
 
     def reset(self, player_id):
         return self._handle.reset(player_id.encode('utf8'))
+
+    def get_status(self):
+        cdef status_t status = self._handle.get_status()
+        return {
+            st.first.decode('utf8'): {
+                it.first.decode('utf8'): it.second.decode('utf8')
+                for it in st.second
+            }
+            for st in status
+        }
