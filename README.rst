@@ -24,8 +24,8 @@ Install
 Requirements
 ------------
 
-* Python 2.7, 3.3, 3.4 or 3.5.
-* `Jubatus <http://jubat.us/en/quickstart.html>`_ needs to be installed.
+* Python 2.7, 3.3, 3.4, 3.5, 3.6 or 3.7.
+* `Jubatus <http://jubat.us/en/quickstart.html>`_ needs to be installed when build from sources.
 
 Limitations
 -----------
