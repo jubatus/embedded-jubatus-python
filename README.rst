@@ -19,7 +19,6 @@ Install
 
 ::
 
-  pip install Cython
   pip install embedded_jubatus
 
 Requirements

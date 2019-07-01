@@ -13,9 +13,8 @@ def read(name):
 def _setup():
     include_dirs = []
     install_requires = read('requirements.txt').split('\n')
-    build_requires = [
-        line for line in install_requires
-        if line.startswith('numpy') or line.startswith('Cython')]
+    setup_requires = ['Cython'] + [
+        row for row in install_requires if row.startswith('numpy')]
 
     try:
         from Cython.Build import cythonize
@@ -51,24 +50,24 @@ def _setup():
             'Programming Language :: Python :: 2',
             'Programming Language :: Python :: 3',
         ],
-        build_requires=build_requires,
+        setup_requires=setup_requires,
         install_requires=install_requires,
         test_suite='tests',
     )
+    kwargs['ext_modules'] = [Extension(
+        'embedded_jubatus', [
+            'src/embedded_jubatus.{}'.format(
+                'pyx' if cythonize else 'cpp'),
+            'src/_wrapper.cpp',
+            'src/_model.cpp'
+        ],
+        include_dirs=include_dirs,
+        libraries=['jubatus_core', 'jubatus_util_text'],
+        language='c++',
+        extra_compile_args=extra_compile_args)
+    ]
     if cythonize:
-        kwargs['ext_modules'] = cythonize([
-            Extension(
-                'embedded_jubatus',
-                [
-                    'src/embedded_jubatus.pyx',
-                    'src/_wrapper.cpp',
-                    'src/_model.cpp'
-                ],
-                include_dirs=include_dirs,
-                libraries=['jubatus_core', 'jubatus_util_text'],
-                language='c++',
-                extra_compile_args=extra_compile_args)
-        ])
+        kwargs['ext_modules'] = cythonize(kwargs['ext_modules'])
     setup(**kwargs)
 
 

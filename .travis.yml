@@ -61,9 +61,9 @@ install:
       fi;
     fi
   - if [ "$DIST" == "centos" ] && [ $VERSION -eq 6 ]; then
-      docker exec test /usr/bin/scl enable python27 -- pip install --upgrade pip setuptools;
+      docker exec test /usr/bin/scl enable python27 -- pip install --upgrade pip setuptools cython;
     else
-      docker exec test pip install --upgrade pip setuptools;
+      docker exec test pip install --upgrade pip setuptools cython;
     fi
   - if [ "$TRAVIS_BRANCH" != "master" ]; then
       if [ "$DIST" == "centos" ]; then
