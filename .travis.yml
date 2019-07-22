@@ -20,11 +20,13 @@ matrix:
     - env:
       - DIST=ubuntu
       - VERSION=16.04
+    - env:
+      - DIST=quay.io/pypa/manylinux2010_x86_64
+      - VERSION=latest
 
 before_install:
   - docker pull ${DIST}:${VERSION}
-  - docker run -w /root --name test -d ${DIST}:${VERSION} sleep infinity
-  - docker cp . test:/root/
+  - docker run -v $(pwd):/io -w /io --name test -d ${DIST}:${VERSION} sleep infinity
   - if [ "$DIST" == "centos" ]; then
       if [ $VERSION -eq 6 ]; then
         docker exec test rpm -Uvh http://download.jubat.us/yum/rhel/6/stable/x86_64/jubatus-release-6-2.el6.x86_64.rpm;
@@ -61,20 +63,18 @@ install:
       fi;
     fi
   - if [ "$DIST" == "centos" ] && [ $VERSION -eq 6 ]; then
-      docker exec test /usr/bin/scl enable python27 -- pip install --upgrade pip setuptools;
-    else
-      docker exec test pip install --upgrade pip setuptools;
+      docker exec test /usr/bin/scl enable python27 -- pip install --upgrade pip setuptools cython;
+    elif [ "$DIST" != "quay.io/pypa/manylinux2010_x86_64" ]; then
+      docker exec test pip install --upgrade pip setuptools cython;
     fi
   - if [ "$TRAVIS_BRANCH" != "master" ]; then
       if [ "$DIST" == "centos" ]; then
         docker exec test yum -y install git bzip2 msgpack-devel-0.5.9;
-      elif [ "$DIST" == "ubuntu" ]; then
-        docker exec test apt-get --force-yes -y install git bzip2 libmsgpack-dev;
-      fi;
-      docker exec test git clone -b develop https://github.com/jubatus/jubatus_core.git;
-      if [ "$DIST" == "centos" ]; then
+        docker exec test git clone -b develop https://github.com/jubatus/jubatus_core.git;
         docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install && ldconfig";
       elif [ "$DIST" == "ubuntu" ]; then
+        docker exec test apt-get --force-yes -y install git bzip2 libmsgpack-dev;
+        docker exec test git clone -b develop https://github.com/jubatus/jubatus_core.git;
         docker exec test bash -ic "cd jubatus_core; ./waf configure --prefix=/usr --regexp-library=none && ./waf build && ./waf install";
       fi;
     fi
@@ -88,4 +88,6 @@ script:
       fi;
     elif [ "$DIST" == "ubuntu" ]; then
       docker exec -t test bash -ic "source /opt/jubatus/profile; pip install -e . && pip install scipy && python ./setup.py test";
+    elif [ "$DIST" == "quay.io/pypa/manylinux2010_x86_64" ]; then
+      docker exec -t test bash build-wheels.sh build_wheels;
     fi
