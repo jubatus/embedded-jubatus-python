@@ -82,12 +82,12 @@ install:
 script:
   - if [ "$DIST" == "centos" ]; then
       if [ $VERSION -eq 6 ]; then
-        docker exec -t test /usr/bin/scl enable python27 -- bash -ic "pip install -e . && pip install scipy && python ./setup.py test";
+        docker exec -t test /usr/bin/scl enable python27 -- bash -ic "pip install -r requirements.txt && pip install -e . && pip install scipy && python ./setup.py test";
       else
-        docker exec -t test bash -ic "pip install -e . && pip install scipy && python ./setup.py test";
+        docker exec -t test bash -ic "pip install -r requirements.txt && pip install -e . && pip install scipy && python ./setup.py test";
       fi;
     elif [ "$DIST" == "ubuntu" ]; then
-      docker exec -t test bash -ic "source /opt/jubatus/profile; pip install -e . && pip install scipy && python ./setup.py test";
+      docker exec -t test bash -ic "source /opt/jubatus/profile; pip install -r requirements.txt && pip install -e . && pip install scipy && python ./setup.py test";
     elif [ "$DIST" == "quay.io/pypa/manylinux2010_x86_64" ]; then
       docker exec -t test bash build-wheels.sh build_wheels;
     fi

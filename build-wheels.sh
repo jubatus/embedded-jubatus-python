@@ -17,7 +17,7 @@ function build_wheels() {
     ./waf install
     cd /io
 
-    for PYBIN in /opt/python/*m/bin; do
+    for PYBIN in /opt/python/*/bin; do
         "${PYBIN}/pip" install cython
         "${PYBIN}/pip" install -r /io/requirements.txt
         "${PYBIN}/pip" wheel /io/ -w wheelhouse/
@@ -29,11 +29,12 @@ function build_wheels() {
 
     /opt/python/cp37-cp37m/bin/python ./setup.py sdist
 
-    for PYBIN in /opt/python/*m/bin; do
+    cd /io/tests
+    for PYBIN in /opt/python/*/bin; do
         V=${PYBIN%/bin}
         V=${V#/opt/python/}
         "${PYBIN}/pip" install /io/wheelhouse/embedded_jubatus-*-${V}-manylinux2010_x86_64.whl scipy
-        "${PYBIN}/python" ./setup.py test
+        "${PYBIN}/python" -m unittest discover -v
     done
 }
 

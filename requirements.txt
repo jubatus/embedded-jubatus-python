@@ -1,2 +1,2 @@
-numpy>=1.14,<1.17.0  # numpy-1.17.0 dropped python2 supports
+numpy>=1.16
 jubatus>=1.0.2
