@@ -19,14 +19,16 @@ Install
 
 ::
 
-  pip install Cython
   pip install embedded_jubatus
 
 Requirements
 ------------
 
-* Python 2.7, 3.3, 3.4 or 3.5.
-* `Jubatus <http://jubat.us/en/quickstart.html>`_ needs to be installed.
+* Python 2.7, 3.5, 3.6 or 3.7
+* `Jubatus (Python Client) <https://pypi.org/project/jubatus/>`_ 1.0.2 or later
+* numpy 1.14-1.16 (1.17 or later don't support Python 2.7)
+* `Jubatus <http://jubat.us/en/quickstart.html>`_ needs to be installed when build from source package or repository
+* `Cython <https://pypi.org/project/Cython/>`_ needs to be installed when build from repository
 
 Limitations
 -----------
